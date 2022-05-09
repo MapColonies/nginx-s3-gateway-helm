@@ -50,7 +50,7 @@ static_resources:
                   address:
                     socket_address:
                       address: 127.0.0.1
-                      port_value: {{ .Values.ports.nginx.nginxTargetPort }}
+                      port_value: {{ .Values.ports.nginx.targetPort }}
 admin:
   access_log_path: "/dev/null"
   address:

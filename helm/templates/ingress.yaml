@@ -17,7 +17,7 @@ spec:
           service:
             name: {{ .Release.Name }}-{{ .Chart.Name }}-service
             port:
-              number: 8080
+              number: {{ .Values.ports.nginx.targetPort }}
     {{- if .Values.ingress.host }}
     host: {{ .Values.ingress.host | quote }}
     {{ end }}

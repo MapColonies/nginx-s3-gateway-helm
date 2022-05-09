@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       podName: {{ .Release.Name }}-{{ .Chart.Name }}-pod 
@@ -18,10 +18,10 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}-{{ .Chart.Name }}-container
-          image: {{ .Values.image }}
-          imagePullPolicy: Never
+          image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
-          - containerPort: 8080
+          - containerPort: {{ .Values.ports.nginx.targetPort }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
