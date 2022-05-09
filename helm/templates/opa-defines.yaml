@@ -1,6 +1,6 @@
 {{- define "nginx-s3-gateway.opa-container" }}
         - name: opa
-          image: openpolicyagent/opa:0.29.4-envoy-3
+          image: "{{ .Values.opa.image }}:{{ .Values.opa.imageTag }}"
           volumeMounts:
           - readOnly: true
             mountPath: /policy

@@ -1,5 +1,8 @@
 enabled: true
-image: nginx-s3-gateway:v1.0.0
+image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
+imageTag: v1.0.0
+replicaCount: 1
+imagePullPolicy: Always
 
 ingress:
   enabled: false
@@ -53,12 +56,13 @@ authentication:
   opa:
     enabled: false
     customHeaderName: 'x-api-key'
+    resourceType: '3d'
 
 ports:
   deployment: 8080
   nginx:
     port: 80
-    nginxTargetPort: 8080
+    targetPort: 8080
   opa: 
     port: 9191
   envoy: 
