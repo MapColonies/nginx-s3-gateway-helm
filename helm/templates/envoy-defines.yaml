@@ -1,25 +1,25 @@
 {{- define "nginx-s3-gateway.envoy-container" }}
-  - name: envoy
-    image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
-    volumeMounts:
-    - readOnly: true
-      mountPath: /config
-      name: proxy-config
-    args:
-    - "envoy"
-    - "--config-path"
-    - "/config/envoy.yaml"
-    ports:
-      - name: http
-        containerPort: {{ .Values.ports.envoy.port }}
-        protocol: TCP
-      - name: admin
-        containerPort: {{ .Values.ports.envoy.port }}
-        protocol: TCP
+        - name: envoy
+          image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
+          volumeMounts:
+          - readOnly: true
+            mountPath: /config
+            name: proxy-config
+          args:
+          - "envoy"
+          - "--config-path"
+          - "/config/envoy.yaml"
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.envoy.port }}
+              protocol: TCP
+            - name: admin
+              containerPort: {{ .Values.ports.envoy.port }}
+              protocol: TCP
 {{- end }}
 
 {{- define "nginx-s3-gateway.envoy-volumes" }}
-  - name: proxy-config
-    configMap:
-      name: {{ .Release.Name }}-{{ .Chart.Name }}-envoy
+      - name: proxy-config
+        configMap:
+          name: {{ .Release.Name }}-{{ .Chart.Name }}-envoy
 {{- end }}

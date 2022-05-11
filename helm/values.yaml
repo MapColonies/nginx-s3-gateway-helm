@@ -15,8 +15,8 @@ ingress:
     nginx.org/mergeable-ingress-type: "minion"
     nginx.org/rewrites: "serviceName={{ .Release.Name }}-{{ .Chart.Name }}-service rewrite=/"
 
-global: 
-  allowDirectoryList: false
+global:
+  allowDirectoryList: "false"
 
 deployment:
   pod:
@@ -39,9 +39,9 @@ s3:
   serverProto: "http"
   region: "us-east-1"
   style: "path"
-  debug: true
-  sigsVersion: "4"
-  allowDirectoryList: false
+  debug: "true"
+  # sigsVersion: "4"
+  # allowDirectoryList: "false"
 
 aws:
   sigsVersion: "4"
@@ -63,9 +63,9 @@ ports:
   nginx:
     port: 80
     targetPort: 8080
-  opa: 
+  opa:
     port: 9191
-  envoy: 
+  envoy:
     port: 8081
 
 opa:
