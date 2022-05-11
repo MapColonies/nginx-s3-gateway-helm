@@ -11,6 +11,4 @@ spec:
   to:
     kind: Service
     name: {{ $.Release.Name }}-{{ .Chart.Name }}-service
-  tls:
-    termination: edge
 {{ end }}
