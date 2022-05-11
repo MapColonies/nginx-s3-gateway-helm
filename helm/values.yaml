@@ -31,7 +31,7 @@ deployment:
       co.elastic.metrics/period: '10s'
 
 s3:
-  bucketName: "3dtiles"
+  bucketName: "dem-dev"
   accessKeyId: "avi"
   secretKey: "aviPassword"
   server: "localhost"
@@ -47,14 +47,14 @@ aws:
   sigsVersion: "4"
 
 route:
-  enabled: false
+  enabled: true
 
   annotations:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 authentication:
   opa:
-    enabled: false
+    enabled: true
     customHeaderName: 'x-api-key'
     resourceType: '3d'
 
