@@ -6,7 +6,7 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      podName: {{ .Release.Name }}-{{ .Chart.Name }}-pod 
+      podName: {{ .Release.Name }}-{{ .Chart.Name }}-pod
   template:
     metadata:
       labels:
@@ -18,19 +18,41 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}-{{ .Chart.Name }}-container
+          env:
+          - name: S3_BUCKET_NAME
+            value: {{ tpl .Values.s3.bucketName . | quote }}
+          - name: S3_ACCESS_KEY_ID
+            value: {{ tpl .Values.s3.accessKeyId . | quote }}
+          - name: S3_SECRET_KEY
+            value: {{ tpl .Values.s3.secretKey . | quote }}
+          - name: S3_SERVER
+            value: {{ tpl .Values.s3.server . | quote }}
+          - name: S3_SERVER_PORT
+            value: {{ tpl .Values.s3.serverPort . | quote }}
+          - name: S3_SERVER_PROTO
+            value: {{ tpl .Values.s3.serverProto . | quote }}
+          - name: S3_REGION
+            value: {{ tpl .Values.s3.region . | quote }}
+          - name: S3_STYLE
+            value: {{ tpl .Values.s3.style . | quote }}
+          - name: S3_DEBUG
+            value: {{ tpl .Values.s3.debug . | quote }}
+          - name: AWS_SIGS_VERSION
+            value: {{ tpl .Values.aws.sigsVersion . | quote }}
+          - name: ALLOW_DIRECTORY_LIST
+            value: {{ tpl .Values.global.allowDirectoryList . | quote }}
+          - name: HEADER_TOKEN
+            value: {{ tpl .Values.authentication.opa.customHeaderName . | quote }}
           image: "{{ .Values.image }}:{{ .Values.imageTag }}"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
           - containerPort: {{ .Values.ports.nginx.targetPort }}
-          envFrom:
-            - configMapRef:
-                name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
         {{- if .Values.authentication.opa.enabled }}
         {{- template "nginx-s3-gateway.envoy-container" . }}
         {{- template "nginx-s3-gateway.opa-container" . }}
-        {{- end}}
+        {{- end }}
       volumes:
       {{- if .Values.authentication.opa.enabled }}
       {{- template "nginx-s3-gateway.envoy-volumes" . }}
       {{- template "nginx-s3-gateway.opa-volumes" . }}
-      {{- end}}
+      {{- end }}
