@@ -31,7 +31,7 @@ deployment:
       co.elastic.metrics/period: '10s'
 
 s3:
-  bucketName: "dem-dev"
+  bucketName: "3dtiles"
   accessKeyId: "avi"
   secretKey: "aviPassword"
   server: "localhost"
@@ -56,7 +56,7 @@ authentication:
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
-    resourceType: '3d'
+    domain: '3d'
 
 ports:
   deployment: 8080
