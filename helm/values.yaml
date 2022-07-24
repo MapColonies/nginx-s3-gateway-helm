@@ -1,6 +1,6 @@
 enabled: true
 image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
-imageTag: v1.0.0
+imageTag: v1.1.0
 replicaCount: 1
 imagePullPolicy: Always
 
@@ -32,8 +32,8 @@ deployment:
 
 s3:
   bucketName: "3dtilesint"
-  accessKeyId: "raster"
-  secretKey: "rasterPassword"
+  accessKeyId: "vector"
+  secretKey: "vectorPassword"
   server: "10.8.1.13"
   serverPort: "9000"
   serverProto: "http"
