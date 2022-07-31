@@ -16,6 +16,8 @@ spec:
         {{ $key }}: {{ tpl $val $ | quote }}
       {{- end }}
     spec:
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretName | quote }}
       containers:
         - name: {{ .Release.Name }}-{{ .Chart.Name }}-container
           env:
