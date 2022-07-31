@@ -11,7 +11,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: {{ .Values.ingress.path | default (print "/" .Release.Name "/" .Chart.Name "/") }}
+      - path: {{ .Values.ingress.path }}{{ .Release.Name }}(/|$)(.*)
         pathType: Prefix
         backend:
           service:
