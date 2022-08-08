@@ -19,7 +19,7 @@ jwt_token = token {
 }
 {{- end }}
 
-# extract payload from token
+# Extract payload from token
 payload = payload {
   [_, payload, _] := jwt_token
 }

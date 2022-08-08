@@ -1,21 +1,20 @@
 enabled: true
-image: artifactory.rnd-hub.com:6543/nginx-s3-gateway
-imageTag: v1.1.0
+image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
+imageTag: v1.1.1
 replicaCount: 1
 imagePullPolicy: Always
 imagePullSecretName: mapcolonies-secret
 
 ingress:
-  enabled: true
-
+  enabled: false
+  type: 'nginx-kubernetes' # supported values: 'nginx-org' | 'nginx-kubernetes'
+  host: "*"
   path: /
-  host: "lb-mapcolonies.gg.wwest.local"
 
+route:
+  enabled: true
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/rewrites: "serviceName={{ .Release.Name }}-{{ .Chart.Name }}-service rewrite=/"
+    haproxy.router.openshift.io/rewrite-target: "/"
 
 global:
   allowDirectoryList: "false"
@@ -33,11 +32,11 @@ deployment:
       co.elastic.metrics/period: '10s'
 
 s3:
-  bucketName: "mapcolonies"
-  accessKeyId: "nAee0Wyy0m9hvvTkttTe6OOEQtbw7-a8"
-  secretKey: "yPGlawFizJUS3VcN9hpYujaeN64qLf4T"
-  server: "objects.gg.wwest.local"
-  serverPort: "80"
+  bucketName: "dem-int"
+  accessKeyId: "raster"
+  secretKey: "rasterPassword"
+  server: "10.8.0.9"
+  serverPort: "9000"
   serverProto: "http"
   region: "us-east-1"
   style: "path"
@@ -48,17 +47,11 @@ s3:
 aws:
   sigsVersion: "4"
 
-route:
-  enabled: false
-
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: "/"
-
 authentication:
   opa:
-    enabled: false
+    enabled: true
     customHeaderName: 'x-api-key'
-    domain: 'raster'
+    domains: '3d'
 
 ports:
   deployment: 8080
