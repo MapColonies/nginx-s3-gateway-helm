@@ -51,7 +51,6 @@ authentication:
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
-    domains: '3d'
 
 ports:
   deployment: 8080
@@ -69,6 +68,7 @@ opa:
 
 envoy:
   image: envoyproxy/envoy
-  imageTag: v1.18.3
+  imageTag: v1.20.7
   maxRequestBytes: 8192
+  requestedDomain: 3d
   

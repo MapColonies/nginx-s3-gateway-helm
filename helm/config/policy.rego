@@ -2,11 +2,10 @@ package envoy.authz
 
 import input.attributes.request.http as http_request
 import input.parsed_query as query_params
+import input.attributes.metadataContext.filterMetadata.map_colonies as map_colonies
 
-# Decline until I allow it.
-default allow = false 
+default allow = false
 
-### TOKEN ###
 # Gets the token form query
 jwt_token = token {
   token := io.jwt.decode(query_params.token[0])
@@ -23,38 +22,34 @@ jwt_token = token {
 payload = payload {
   [_, payload, _] := jwt_token
 }
-### TOKEN ###
 
-### Resources Access ###
+# Check domain
 user_has_resource_access[payload] {
-  lower(payload.d[_]) = {{ .Values.authentication.opa.domains | lower | quote }}
+  lower(payload.d[_]) = lower(map_colonies.domain)
 }
-### Resources Access ###
 
-### ORIGIN ###
-# Checks if origin is in allowed origin
+# Check if origin is in allowed origins array
 valid_origin[payload] {
   payload.ao[_] = http_request.headers.origin
 }
 
-# Checks if origin is allowed origin (if ao is not an arr)
+# Check in case that allowed origin is not an array
 valid_origin[payload] {
   payload.ao == http_request.headers.origin
 }
 
-# Checks if there is allowed origin
+# Check in case that there is no allowed origin
 valid_origin[payload] {
   not payload.ao
 }
-### ORIGIN ###
 
-# allow authenticated access
+# Allow authenticated access
 allow {
   valid_origin[payload]
   user_has_resource_access[payload]
 }
 
-# allow cors preflight WITHOUT AUTHENTICATION
+# Allow cors preflight WITHOUT AUTHENTICATION
 allow {
   http_request.method == "OPTIONS"
   _ = http_request.headers["access-control-request-method"]
