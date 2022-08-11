@@ -10,7 +10,7 @@
           - "--server"
           - "--addr=0.0.0.0:8181"
           - "--diagnostic-addr=0.0.0.0:8282"
-          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.ports.opa.port }}"
+          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.opa.port }}"
           - "--set=plugins.envoy_ext_authz_grpc.path=envoy/authz/allow"
           - "--set=decision_logs.console=true"
           - "/policy/policy.rego"

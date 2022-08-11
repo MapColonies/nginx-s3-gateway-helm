@@ -1,4 +1,4 @@
-{{ $targetPort := ternary .Values.ports.envoy.port .Values.ports.nginx.targetPort .Values.authentication.opa.enabled }}
+{{ $targetPort := ternary .Values.envoy.port .Values.ports.nginx.targetPort .Values.authentication.opa.enabled }}
 
 apiVersion: v1
 kind: Service
@@ -10,8 +10,4 @@ spec:
   ports:
   - protocol: TCP
     port: {{ .Values.ports.nginx.port }}
-    {{ if .Values.authentication.opa.enabled }}
-    targetPort: {{ .Values.ports.envoy.port }}
-    {{ else }}
-    targetPort: {{ .Values.ports.nginx.targetPort }}
-    {{ end }}
+    targetPort: {{ $targetPort }}

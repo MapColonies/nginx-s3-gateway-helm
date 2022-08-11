@@ -11,10 +11,10 @@
           - "/config/envoy.yaml"
           ports:
             - name: http
-              containerPort: {{ .Values.ports.envoy.port }}
+              containerPort: {{ .Values.envoy.port }}
               protocol: TCP
             - name: admin
-              containerPort: {{ .Values.ports.envoy.port }}
+              containerPort: {{ .Values.envoy.port }}
               protocol: TCP
 {{- end }}
 

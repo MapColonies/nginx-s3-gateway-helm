@@ -1,6 +1,6 @@
 enabled: true
 image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
-imageTag: v1.1.0
+imageTag: v1.1.1
 replicaCount: 1
 imagePullPolicy: Always
 
@@ -31,7 +31,7 @@ deployment:
       co.elastic.metrics/period: '10s'
 
 s3:
-  bucketName: "3dtilesint"
+  bucketName: "3dtiles"
   accessKeyId: "vector"
   secretKey: "vectorPassword"
   server: "10.8.1.13"
@@ -63,17 +63,15 @@ ports:
   nginx:
     port: 80
     targetPort: 8080
-  opa:
-    port: 9191
-  envoy:
-    port: 8081
 
 opa:
   image: openpolicyagent/opa
   imageTag: 0.29.4-envoy-3
+  port: 9191
 
 envoy:
   image: envoyproxy/envoy
   imageTag: v1.18.3
+  port: 8081
   maxRequestBytes: 8192
   
