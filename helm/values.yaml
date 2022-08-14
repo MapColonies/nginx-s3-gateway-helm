@@ -1,6 +1,6 @@
 enabled: true
 image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
-imageTag: v1.1.0
+imageTag: v1.2.0
 replicaCount: 1
 imagePullPolicy: Always
 
