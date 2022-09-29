@@ -3,7 +3,7 @@ static_resources:
     - address:
         socket_address:
           address: 0.0.0.0
-          port_value: {{ .Values.ports.envoy.port }}
+          port_value: {{ .Values.envoy.port }}
       filter_chains:
         - filters:
             - name: envoy.http_connection_manager
@@ -33,7 +33,7 @@ static_resources:
                       failure_mode_allow: false
                       grpc_service:
                         google_grpc:
-                          target_uri: localhost:{{ .Values.ports.opa.port }}
+                          target_uri: localhost:{{ .Values.opa.port }}
                           stat_prefix: ext_authz
                         timeout: 0.5s
                   - name: envoy.filters.http.router
