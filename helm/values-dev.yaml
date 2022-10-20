@@ -53,15 +53,15 @@ route:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 authentication:
+  jwtPublicKeySecret: map-colonies-jwks-private
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
-    domains: '3d'
 
 ports:
   deployment: 8080
   nginx:
-    port: 80
+    port: 8080
     targetPort: 8080
 
 opa:
@@ -74,4 +74,4 @@ envoy:
   imageTag: v1.18.3
   port: 8081
   maxRequestBytes: 8192
-  
+  requestedDomain: '3d'
