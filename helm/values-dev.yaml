@@ -75,3 +75,11 @@ envoy:
   port: 8081
   maxRequestBytes: 8192
   requestedDomain: '3d'
+
+annotations:
+  collectord.io/index: SPLUNK_INDEX
+  collectord.io/logs-output: splunk
+  collectord.io/procstats-output: devnull
+  collectord.io/netstats-output: devnull
+  collectord.io/nettable-output: devnull
+  collectord.io/stats-output: devnull
