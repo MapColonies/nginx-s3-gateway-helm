@@ -11,6 +11,8 @@ spec:
   to:
     kind: Service
     name: {{ $.Release.Name }}-{{ .Chart.Name }}-service
+  {{- if .Values.route.https }}
   tls:
-    termination: edge  
+    termination: edge
+  {{- end }}
 {{ end }}
