@@ -1,12 +1,16 @@
 {{ if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-ingress
+metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+  name: {{ $fullname }}
+  labels:
+    app: {{ $fullname }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: "{{ .Release.Name }}"
   annotations:
-  {{- range $key, $val := .Values.ingress.annotations }}
-    {{ $key }}: {{ tpl $val $ | quote }}
-  {{- end }}
+  {{- range $key, $value := .Values.ingress.annotations }}
+      {{ $key }}: {{ tpl $value $ | quote }}
+    {{- end }}
 spec:
   rules:
   - http:
