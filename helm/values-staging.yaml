@@ -3,6 +3,15 @@ global:
   tracing: {}
   metrics: {}
   environment: {}
+  allowDirectoryList: "false"
+
+annotations:
+  collectord.io/index: SPLUNK_INDEX
+  collectord.io/logs-output: splunk
+  collectord.io/procstats-output: devnull
+  collectord.io/netstats-output: devnull
+  collectord.io/nettable-output: devnull
+  collectord.io/stats-output: devnull
 
 image: 
   repository: nginx-s3-gateway
@@ -38,13 +47,15 @@ resources:
 
 ingress:
   enabled: false
+  type: 'nginx-kubernetes' # supported values: 'nginx-org' | 'nginx-kubernetes'
+  host: "*"
+  path: /
+
+route:
+  enabled: true
+  https: true
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.org/mergeable-ingress-type: minion
-    nginx.org/rewrites: >-
-      serviceName={{ printf "%s-%s" .Release.Name .Chart.Name | trunc 63 |
-      trimSuffix "-" }} rewrite=/
-    path: /nginx-s3-gateway/
+    haproxy.router.openshift.io/rewrite-target: "/"
 
 s3:
   bucketName: "3dtiles"
@@ -56,16 +67,12 @@ s3:
   region: "us-east-1"
   style: "path"
   debug: "true"
-  allowDirectoryList: "false"
+
+aws:
   sigsVersion: "4"
 
-route:
-  enabled: true
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: "/"
-
 authentication:
-  jwtPublicKeySecret: map-colonies-jwks
+  jwtPublicKeySecretName: map-colonies-jwks
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
@@ -80,18 +87,28 @@ opa:
   image: openpolicyagent/opa
   imageTag: 0.29.4-envoy-3
   port: 9191
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 envoy:
   image: envoyproxy/envoy
   imageTag: v1.20.7
   port: 6565
   maxRequestBytes: 8192
-  requestedDomain: '3d'
-
-annotations:
-  collectord.io/index: SPLUNK_INDEX
-  collectord.io/logs-output: splunk
-  collectord.io/procstats-output: devnull
-  collectord.io/netstats-output: devnull
-  collectord.io/nettable-output: devnull
-  collectord.io/stats-output: devnull
+  requestedDomain: '3D'
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

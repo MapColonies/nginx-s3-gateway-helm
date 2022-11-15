@@ -12,6 +12,8 @@ spec:
   to:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
+  {{- if .Values.route.https }}
   tls:
-    termination: edge  
+    termination: edge
+  {{- end }}
 {{ end }}
