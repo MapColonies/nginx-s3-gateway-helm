@@ -83,8 +83,8 @@ opa:
 
 envoy:
   image: envoyproxy/envoy
-  imageTag: v1.18.3
-  port: 8081
+  imageTag: v1.20.7
+  port: 6565
   maxRequestBytes: 8192
   requestedDomain: '3d'
 

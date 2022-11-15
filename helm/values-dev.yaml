@@ -65,7 +65,7 @@ route:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 authentication:
-  jwtPublicKetSecretName: map-colonies-jwks
+  jwtPublicKeySecretName: map-colonies-jwks
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
@@ -80,13 +80,31 @@ opa:
   image: openpolicyagent/opa
   imageTag: 0.29.4-envoy-3
   port: 9191
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 envoy:
   image: envoyproxy/envoy
-  imageTag: v1.18.3
-  port: 8081
+  imageTag: v1.20.7
+  port: 6565
   maxRequestBytes: 8192
   requestedDomain: '3d'
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi  
 
 annotations:
   collectord.io/index: SPLUNK_INDEX

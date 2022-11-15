@@ -34,6 +34,18 @@ spec:
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "nginx-s3-gateway.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        {{- if .Values.authentication.opa.enabled }}
+        - name: opa-policy
+          secret:
+            secretName: {{ .Release.Name }}-{{ $chartName }}-opa
+        - name: proxy-config
+          configMap:
+            name: {{ .Release.Name }}-{{ $chartName }}-envoy
+        - name: jwt-public-keys
+          secret:
+            secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
+        {{- end }}
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
@@ -42,36 +54,36 @@ spec:
           ports:
             - containerPort: {{ .Values.ports.nginx.targetPort }}
           env:
-          - name: S3_BUCKET_NAME
-            value: {{ tpl .Values.s3.bucketName . | quote }}
-          - name: S3_ACCESS_KEY_ID
-            value: {{ tpl .Values.s3.accessKeyId . | quote }}
-          - name: S3_SECRET_KEY
-            value: {{ tpl .Values.s3.secretKey . | quote }}
-          - name: S3_SERVER
-            value: {{ tpl .Values.s3.server . | quote }}
-          - name: S3_SERVER_PORT
-            value: {{ tpl .Values.s3.serverPort . | quote }}
-          - name: S3_SERVER_PROTO
-            value: {{ tpl .Values.s3.serverProto . | quote }}
-          - name: S3_REGION
-            value: {{ tpl .Values.s3.region . | quote }}
-          - name: S3_STYLE
-            value: {{ tpl .Values.s3.style . | quote }}
-          - name: S3_DEBUG
-            value: {{ tpl .Values.s3.debug . | quote }}
-          - name: AWS_SIGS_VERSION
-            value: {{ tpl .Values.s3.sigsVersion . | quote }}
-          - name: ALLOW_DIRECTORY_LIST
-            value: {{ tpl .Values.s3.allowDirectoryList . | quote }}
-          - name: HEADER_TOKEN
-            value: {{ tpl .Values.authentication.opa.customHeaderName . | quote }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /liveness
-          #     port: 8080
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
+            - name: S3_BUCKET_NAME
+              value: {{ tpl .Values.s3.bucketName . | quote }}
+            - name: S3_ACCESS_KEY_ID
+              value: {{ tpl .Values.s3.accessKeyId . | quote }}
+            - name: S3_SECRET_KEY
+              value: {{ tpl .Values.s3.secretKey . | quote }}
+            - name: S3_SERVER
+              value: {{ tpl .Values.s3.server . | quote }}
+            - name: S3_SERVER_PORT
+              value: {{ tpl .Values.s3.serverPort . | quote }}
+            - name: S3_SERVER_PROTO
+              value: {{ tpl .Values.s3.serverProto . | quote }}
+            - name: S3_REGION
+              value: {{ tpl .Values.s3.region . | quote }}
+            - name: S3_STYLE
+              value: {{ tpl .Values.s3.style . | quote }}
+            - name: S3_DEBUG
+              value: {{ tpl .Values.s3.debug . | quote }}
+            - name: AWS_SIGS_VERSION
+              value: {{ tpl .Values.s3.sigsVersion . | quote }}
+            - name: ALLOW_DIRECTORY_LIST
+              value: {{ tpl .Values.s3.allowDirectoryList . | quote }}
+            - name: HEADER_TOKEN
+              value: {{ tpl .Values.authentication.opa.customHeaderName . | quote }}
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
         {{- if .Values.authentication.opa.enabled }}
         - name: envoy
           image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
@@ -100,9 +112,9 @@ spec:
               port: 8080
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             periodSeconds: 5
-          {{- if .Values.resources.enabled }}
+          {{- if .Values.envoy.resources.enabled }}
           resources:
-            {{- toYaml .Values.resources.value | nindent 12 }}
+            {{- toYaml .Values.envoy.resources.value | nindent 12 }}
           {{- end }}
         - name: opa
           image: "{{ .Values.opa.image }}:{{ .Values.opa.imageTag }}"
@@ -115,33 +127,27 @@ spec:
           - "--server"
           - "--addr=0.0.0.0:8181"
           - "--diagnostic-addr=0.0.0.0:8282"
-          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.opa.port }}"
+          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.opa.imageTag }}"
           - "--set=plugins.envoy_ext_authz_grpc.path=envoy/authz/allow"
+          {{- if .Values.opa.enableLogging }}
           - "--set=decision_logs.console=true"
+          {{- end }}
           - "/policy/policy.rego"
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health?plugins=true
-          #     port: 8282
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health?plugins=true
-          #     port: 8282
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
+          {{- if .Values.opa.resources.enabled }}
+          resources:
+            {{- toYaml .Values.opa.resources.value | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
         {{- end }}
-      volumes:
-        {{- if .Values.authentication.opa.enabled }}
-        - name: opa-policy
-          secret:
-            secretName: {{ .Release.Name }}-{{ .Chart.Name }}-opa
-        - name: proxy-config
-          configMap:
-            name: {{ .Release.Name }}-{{ .Chart.Name }}-envoy
-        - name: jwt-public-keys
-          secret:
-            secretName: {{ .Values.authentication.jwtPublicKetSecretName }}
-        {{- end }}
-{{- end -}}
+{{- end }}
