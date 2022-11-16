@@ -67,6 +67,7 @@ s3:
   region: "us-east-1"
   style: "path"
   debug: "true"
+  cors: "''"
 
 aws:
   sigsVersion: "4"
