@@ -64,7 +64,7 @@ spec:
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              scheme: HTTPS
+              scheme: HTTP
               path: /health
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
