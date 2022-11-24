@@ -1,4 +1,4 @@
-{{ $targetPort := ternary .Values.envoy.port .Values.ports.nginx.targetPort .Values.authentication.opa.enabled }}
+{{ $targetPort := ternary .Values.envoy.port .Values.env.targetPort .Values.authentication.opa.enabled }}
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
@@ -18,7 +18,7 @@ spec:
   type: NodePort
   {{- end }}
   ports:
-  - port: {{ .Values.ports.nginx.port }}
+  - port: {{ .Values.env.port }}
     targetPort: {{ $targetPort }}
     protocol: {{ .Values.env.protocol }}
     name: http

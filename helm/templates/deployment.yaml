@@ -52,16 +52,22 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           ports:
-            - containerPort: {{ .Values.ports.nginx.targetPort }}
+            - containerPort: {{ .Values.env.targetPort }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
           livenessProbe:
             httpGet:
-              path: /liveness
-              port: 8080
-            initialDelaySeconds: 5
+              path: /health
+              port: {{ .Values.env.targetPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /health
+              port: {{ .Values.env.targetPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
         {{- if .Values.authentication.opa.enabled }}
         - name: envoy
           image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
@@ -84,12 +90,18 @@ spec:
             - name: admin
               containerPort: {{ .Values.envoy.port }}
               protocol: {{ .Values.env.protocol }}
-          livenessProbe:
-            httpGet:
-              path: /liveness
-              port: 8080
-            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health?plugins
+          #     port: 8000
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health?plugins
+          #     port: 8000
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
           {{- if .Values.envoy.resources.enabled }}
           resources:
             {{- toYaml .Values.envoy.resources.value | nindent 12 }}

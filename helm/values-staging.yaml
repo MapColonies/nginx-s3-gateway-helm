@@ -19,7 +19,7 @@ image:
 
 enabled: true
 environment: staging
-initialDelaySeconds: 60
+initialDelaySeconds: 10
 nodePort: 30030
 replicaCount: 1
 cloudProvider:
@@ -28,6 +28,8 @@ cloudProvider:
 
 env:
   protocol: TCP
+  port: 8080
+  targetPort: 8080
   tracing:
     enabled: false
     url: 'http://localhost:55681/v1/trace'
@@ -77,12 +79,6 @@ authentication:
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
-
-ports:
-  deployment: 8080
-  nginx:
-    port: 8080
-    targetPort: 8080
 
 opa:
   image: openpolicyagent/opa

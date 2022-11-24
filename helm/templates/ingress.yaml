@@ -26,7 +26,7 @@ spec:
           service:
             name: {{ .Release.Name }}-{{ .Chart.Name }}-service
             port:
-              number: {{ .Values.ports.nginx.targetPort }}
+              number: {{ .Values.env.targetPort }}
     {{- if .Values.ingress.host }}
     host: {{ .Values.ingress.host | quote }}
     {{ end }}
