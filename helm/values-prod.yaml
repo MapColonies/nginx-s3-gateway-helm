@@ -1,0 +1,117 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+  allowDirectoryList: "false"
+
+annotations:
+  collectord.io/index: SPLUNK_INDEX
+  collectord.io/logs-output: splunk
+  collectord.io/procstats-output: devnull
+  collectord.io/netstats-output: devnull
+  collectord.io/nettable-output: devnull
+  collectord.io/stats-output: devnull
+
+image: 
+  repository: nginx-s3-gateway
+  tag: v1.3.4
+
+enabled: true
+environment: development
+initialDelaySeconds: 10
+nodePort: 30030
+replicaCount: 1
+cloudProvider:
+  dockerRegistryUrl: acrarolibotnonprod.azurecr.io
+  flavor: openshift
+
+env:
+  protocol: TCP
+  port: 8080
+  targetPort: 8080
+  tracing:
+    enabled: false
+    url: 'http://localhost:55681/v1/trace'
+  metrics:
+    enabled: false
+    url: 'http://localhost:55681/v1/metrics'
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+ingress:
+  enabled: false
+  type: 'nginx-kubernetes' # supported values: 'nginx-org' | 'nginx-kubernetes'
+  host: "*"
+  path: /
+
+route:
+  enabled: true
+  https: true
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: "/"
+
+s3:
+  bucketName: "3dtiles"
+  accessKeyId: "vector"
+  secretKey: "vectorPassword"
+  server: "10.8.0.9"
+  serverPort: "9000"
+  serverProto: "http"
+  region: "us-east-1"
+  style: "path"
+  debug: "true"
+  cors: "''"
+
+aws:
+  sigsVersion: "4"
+
+authentication:
+  jwtPublicKeySecretName: map-colonies-jwks
+  opa:
+    enabled: true
+    customHeaderName: 'x-api-key'
+
+ports:
+  deployment: 8080
+  nginx:
+    port: 8080
+    targetPort: 8080
+
+opa:
+  image: openpolicyagent/opa
+  imageTag: 0.29.4-envoy-3
+  port: 9191
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+envoy:
+  image: envoyproxy/envoy
+  imageTag: v1.20.7
+  port: 6565
+  maxRequestBytes: 8192
+  requestedDomain: '3D'
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

@@ -1,16 +1,19 @@
-{{ if and .Values.route.enabled (not .Values.ingress.enabled) -}}
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "nginx-s3-gateway.name" . -}}
+{{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
+{{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: {{ $.Release.Name }}-{{ .Chart.Name }}-route
+  name: {{ $releaseName }}-{{ $chartName }}-route
   annotations:
-  {{- range $key, $val := .Values.route.annotations }}
-    {{ $key }}: {{ tpl $val $ }}
-  {{- end }}
+    haproxy.router.openshift.io/rewrite-target: /
 spec:
   to:
     kind: Service
-    name: {{ $.Release.Name }}-{{ .Chart.Name }}-service
+    name: {{ $releaseName }}-{{ $chartName }}
+  {{- if .Values.route.https }}
   tls:
-    termination: edge  
+    termination: edge
+  {{- end }}
 {{ end }}

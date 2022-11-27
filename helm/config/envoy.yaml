@@ -11,6 +11,11 @@ static_resources:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 codec_type: auto
                 stat_prefix: ingress_http
+                access_log:
+                  - name: envoy.access_loggers.File
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+                      path: "/dev/null"
                 route_config:
                   name: local_route
                   virtual_hosts:
@@ -23,6 +28,33 @@ static_resources:
                           route:
                             cluster: service
                 http_filters:
+                  - name: envoy.filters.http.jwt_authn
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                      providers:
+                        map-colonies-jwt:
+                          local_jwks:
+                            filename: /keys/mapColonies.jwks
+                          forward: false #remove the jwt (if header is used)
+                          from_headers:
+                            - name: {{ .Values.authentication.opa.customHeaderName }}
+                          from_params:
+                            - token
+                          jwt_cache_config:  
+                            jwt_cache_size: 100
+                          payload_in_metadata: map_colonies_token_payload
+                      rules:
+                        - match:
+                            prefix: "/"
+                          requires:
+                            provider_name: "map-colonies-jwt"
+                      bypass_cors_preflight: true # all cors preflight requests without auth
+                  - name: envoy.filters.http.set_metadata
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.set_metadata.v3.Config
+                      metadata_namespace: map_colonies
+                      value: 
+                        domain: {{ .Values.envoy.requestedDomain }}
                   - name: envoy.ext_authz
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
@@ -36,6 +68,9 @@ static_resources:
                           target_uri: localhost:{{ .Values.opa.port }}
                           stat_prefix: ext_authz
                         timeout: 0.5s
+                      metadata_context_namespaces:
+                        - map_colonies
+                        - envoy.filters.http.jwt_authn
                   - name: envoy.filters.http.router
   clusters:
     - name: service
@@ -50,7 +85,7 @@ static_resources:
                   address:
                     socket_address:
                       address: 127.0.0.1
-                      port_value: {{ .Values.ports.nginx.targetPort }}
+                      port_value: {{ .Values.env.targetPort }}
 admin:
   access_log_path: "/dev/null"
   address:
