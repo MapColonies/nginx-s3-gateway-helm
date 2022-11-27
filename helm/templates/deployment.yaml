@@ -58,13 +58,13 @@ spec:
                 name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
           livenessProbe:
             httpGet:
-              path: /health
+              path: /liveness
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /health
+              path: /liveness
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
         {{- if .Values.authentication.opa.enabled }}
