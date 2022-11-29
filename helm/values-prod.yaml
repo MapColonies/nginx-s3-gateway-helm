@@ -15,10 +15,10 @@ annotations:
 
 image: 
   repository: nginx-s3-gateway
-  tag: v1.3.4
+  tag: nati-23-11-22
 
 enabled: true
-environment: development
+environment: production
 initialDelaySeconds: 10
 nodePort: 30030
 replicaCount: 1
@@ -60,7 +60,7 @@ route:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 s3:
-  bucketName: "3dtiles"
+  bucketName: "3dtilesint"
   accessKeyId: "vector"
   secretKey: "vectorPassword"
   server: "10.8.0.9"
@@ -79,12 +79,6 @@ authentication:
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
-
-ports:
-  deployment: 8080
-  nginx:
-    port: 8080
-    targetPort: 8080
 
 opa:
   image: openpolicyagent/opa
