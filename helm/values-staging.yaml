@@ -15,7 +15,7 @@ annotations:
 
 image: 
   repository: nginx-s3-gateway
-  tag: v1.3.4
+  tag: v2.0.0
 
 enabled: true
 environment: staging
