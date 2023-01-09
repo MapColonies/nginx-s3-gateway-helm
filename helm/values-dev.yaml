@@ -80,12 +80,6 @@ authentication:
     enabled: true
     customHeaderName: 'x-api-key'
 
-ports:
-  deployment: 8080
-  nginx:
-    port: 8080
-    targetPort: 8080
-
 opa:
   image: openpolicyagent/opa
   imageTag: 0.29.4-envoy-3
