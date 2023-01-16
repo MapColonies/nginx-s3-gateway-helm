@@ -60,7 +60,7 @@ route:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 s3:
-  bucketName: "3dtiles"
+  bucketName: "3dtilesint"
   accessKeyId: "vector"
   secretKey: "vectorPassword"
   server: "10.8.0.9"
