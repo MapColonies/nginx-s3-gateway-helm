@@ -1,9 +1,51 @@
+global:
+  cloudProvider: {}
+  tracing: {}
+  metrics: {}
+  environment: {}
+  allowDirectoryList: "false"
+
+annotations:
+  collectord.io/index: SPLUNK_INDEX
+  collectord.io/logs-output: splunk
+  collectord.io/procstats-output: devnull
+  collectord.io/netstats-output: devnull
+  collectord.io/nettable-output: devnull
+  collectord.io/stats-output: devnull
+
+image: 
+  repository: nginx-s3-gateway
+  tag: v2.0.0
+
 enabled: true
-image: acrarolibotnonprod.azurecr.io/nginx-s3-gateway
-imageTag: v1.1.1
+environment: production
+initialDelaySeconds: 10
+nodePort: 30030
 replicaCount: 1
-imagePullPolicy: Always
-imagePullSecretName: mapcolonies-secret
+cloudProvider:
+  dockerRegistryUrl: acrarolibotnonprod.azurecr.io
+  flavor: openshift
+
+env:
+  protocol: TCP
+  port: 8080
+  targetPort: 8080
+  tracing:
+    enabled: false
+    url: 'http://localhost:55681/v1/trace'
+  metrics:
+    enabled: false
+    url: 'http://localhost:55681/v1/metrics'
+
+resources:
+  enabled: true
+  value:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 ingress:
   enabled: false
@@ -17,21 +59,6 @@ route:
   annotations:
     haproxy.router.openshift.io/rewrite-target: "/"
 
-global:
-  allowDirectoryList: "false"
-
-deployment:
-  pod:
-    annotations:
-      co.elastic.logs/enabled: 'true'
-      co.elastic.logs/module: 'nginx'
-      co.elastic.logs/fileset.stdout: 'access'
-      co.elastic.logs/fileset.stderr: 'error'
-      co.elastic.metrics/module: 'nginx'
-      co.elastic.metrics/metricsets: 'stubstatus'
-      co.elastic.metrics/hosts: '${data.host}:8080/nginx_status'
-      co.elastic.metrics/period: '10s'
-
 s3:
   bucketName: "dem-int"
   accessKeyId: "raster"
@@ -44,32 +71,43 @@ s3:
   debug: "true"
   # sigsVersion: "4"
   # allowDirectoryList: "false"
+  cors: "''"
 
 aws:
   sigsVersion: "4"
 
 authentication:
+  jwtPublicKeySecretName: map-colonies-jwks
   opa:
     enabled: true
     customHeaderName: 'x-api-key'
 
-ports:
-  deployment: 8080
-  nginx:
-    port: 80
-    targetPort: 8080
-  opa:
-    port: 9191
-  envoy:
-    port: 8081
-
 opa:
   image: openpolicyagent/opa
   imageTag: 0.29.4-envoy-3
+  port: 9191
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
 
 envoy:
   image: envoyproxy/envoy
   imageTag: v1.20.7
+  port: 6565
   maxRequestBytes: 8192
-  requestedDomain: 3d
-  
+  requestedDomain: '3D'
+  resources:
+    enabled: true
+    value:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

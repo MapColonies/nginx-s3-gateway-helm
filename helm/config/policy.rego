@@ -1,29 +1,12 @@
 package envoy.authz
 
 import input.attributes.request.http as http_request
-import input.parsed_query as query_params
+import input.attributes.metadataContext.filterMetadata["envoy.filters.http.jwt_authn"].map_colonies_token_payload as payload
 import input.attributes.metadataContext.filterMetadata.map_colonies as map_colonies
 
 default allow = false
 
-# Gets the token form query
-jwt_token = token {
-  token := io.jwt.decode(query_params.token[0])
-}
-
-# Gets the token form header
-{{- if .Values.authentication.opa.customHeaderName }}
-jwt_token = token {
-  token := io.jwt.decode(http_request.headers[{{ .Values.authentication.opa.customHeaderName | lower | quote }}])
-}
-{{- end }}
-
-# Extract payload from token
-payload = payload {
-  [_, payload, _] := jwt_token
-}
-
-# Check domain
+### Resources Access ###
 user_has_resource_access[payload] {
   lower(payload.d[_]) = lower(map_colonies.domain)
 }

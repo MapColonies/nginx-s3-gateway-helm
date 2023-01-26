@@ -1,60 +1,142 @@
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "nginx-s3-gateway.name" . -}}
+{{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
+{{- $tag := include "nginx-s3-gateway.tag" . -}}
+{{- $cloudProviderDockerRegistryUrl := include "nginx-s3-gateway.cloudProviderDockerRegistryUrl" . -}}
+{{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  name: {{ $releaseName }}-{{ $chartName }}
+  labels:
+    app: {{ $chartName }}
+    component: {{ $chartName }}
+    environment: {{ include "nginx-s3-gateway.environment" . }}
+    release: {{ $releaseName }}
+    {{- include "nginx-s3-gateway.labels" . | nindent 4 }}
+{{- with .Values.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      podName: {{ .Release.Name }}-{{ .Chart.Name }}-pod
+      app: {{ $chartName }}
+      release: {{ $releaseName }}
+      run: {{ $releaseName }}-{{ $chartName }}
+      {{- include "nginx-s3-gateway.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        podName: {{ .Release.Name }}-{{ .Chart.Name }}-pod
-      annotations:
-      {{- range $key, $val := .Values.deployment.pod.annotations }}
-        {{ $key }}: {{ tpl $val $ | quote }}
-      {{- end }}
+        app: {{ $chartName }}
+        release: {{ $releaseName }}
+        run: {{ $releaseName }}-{{ $chartName }}
+        {{- include "nginx-s3-gateway.selectorLabels" . | nindent 8 }}
     spec:
-      imagePullSecrets:
-        - name: {{ .Values.imagePullSecretName | quote }}
-      containers:
-        - name: {{ .Release.Name }}-{{ .Chart.Name }}-container
-          env:
-          - name: S3_BUCKET_NAME
-            value: {{ tpl .Values.s3.bucketName . | quote }}
-          - name: S3_ACCESS_KEY_ID
-            value: {{ tpl .Values.s3.accessKeyId . | quote }}
-          - name: S3_SECRET_KEY
-            value: {{ tpl .Values.s3.secretKey . | quote }}
-          - name: S3_SERVER
-            value: {{ tpl .Values.s3.server . | quote }}
-          - name: S3_SERVER_PORT
-            value: {{ tpl .Values.s3.serverPort . | quote }}
-          - name: S3_SERVER_PROTO
-            value: {{ tpl .Values.s3.serverProto . | quote }}
-          - name: S3_REGION
-            value: {{ tpl .Values.s3.region . | quote }}
-          - name: S3_STYLE
-            value: {{ tpl .Values.s3.style . | quote }}
-          - name: S3_DEBUG
-            value: {{ tpl .Values.s3.debug . | quote }}
-          - name: AWS_SIGS_VERSION
-            value: {{ tpl .Values.aws.sigsVersion . | quote }}
-          - name: ALLOW_DIRECTORY_LIST
-            value: {{ tpl .Values.global.allowDirectoryList . | quote }}
-          - name: HEADER_TOKEN
-            value: {{ tpl .Values.authentication.opa.customHeaderName . | quote }}
-          image: "{{ .Values.image }}:{{ .Values.imageTag }}"
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
-          ports:
-          - containerPort: {{ .Values.ports.nginx.targetPort }}
-        {{- if .Values.authentication.opa.enabled }}
-        {{- template "nginx-s3-gateway.envoy-container" . }}
-        {{- template "nginx-s3-gateway.opa-container" . }}
-        {{- end }}
       volumes:
-      {{- if .Values.authentication.opa.enabled }}
-      {{- template "nginx-s3-gateway.envoy-volumes" . }}
-      {{- template "nginx-s3-gateway.opa-volumes" . }}
-      {{- end }}
+        {{- if .Values.authentication.opa.enabled }}
+        - name: opa-policy
+          secret:
+            secretName: {{ .Release.Name }}-{{ $chartName }}-opa
+        - name: proxy-config
+          configMap:
+            name: {{ .Release.Name }}-{{ $chartName }}-envoy
+        - name: jwt-public-keys
+          secret:
+            secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
+        {{- end }}
+      containers:
+        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+          {{- with .Values.image }}
+          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.env.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ .Values.env.targetPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ .Values.env.targetPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+        {{- if .Values.authentication.opa.enabled }}
+        - name: envoy
+          image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
+          volumeMounts:
+          - readOnly: true
+            mountPath: /config
+            name: proxy-config
+          - name: jwt-public-keys
+            readOnly: true
+            mountPath: /keys/mapColonies.jwks
+            subPath: mapColonies.jwks
+          args:
+          - "envoy"
+          - "--config-path"
+          - "/config/envoy.yaml"
+          ports:
+            - name: http
+              containerPort: {{ .Values.envoy.port }}
+              protocol: {{ .Values.env.protocol }}
+            - name: admin
+              containerPort: {{ .Values.envoy.port }}
+              protocol: {{ .Values.env.protocol }}
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health?plugins
+          #     port: 8000
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health?plugins
+          #     port: 8000
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 30
+          {{- if .Values.envoy.resources.enabled }}
+          resources:
+            {{- toYaml .Values.envoy.resources.value | nindent 12 }}
+          {{- end }}
+        - name: opa
+          image: "{{ .Values.opa.image }}:{{ .Values.opa.imageTag }}"
+          volumeMounts:
+          - readOnly: true
+            mountPath: /policy
+            name: opa-policy
+          args:
+          - "run"
+          - "--server"
+          - "--addr=0.0.0.0:8181"
+          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.opa.imageTag }}"
+          - "--set=plugins.envoy_ext_authz_grpc.path=envoy/authz/allow"
+          {{- if .Values.opa.enableLogging }}
+          - "--set=decision_logs.console=true"
+          {{- end }}
+          - "/policy/policy.rego"
+          {{- if .Values.opa.resources.enabled }}
+          resources:
+            {{- toYaml .Values.opa.resources.value | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 30
+        {{- end }}
+{{- end }}
