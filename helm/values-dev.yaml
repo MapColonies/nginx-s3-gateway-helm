@@ -18,7 +18,7 @@ image:
   tag: v2.0.2
 
 enabled: true
-environment: production
+environment: development
 initialDelaySeconds: 10
 nodePort: 30030
 replicaCount: 1
@@ -60,7 +60,7 @@ route:
     haproxy.router.openshift.io/rewrite-target: "/"
 
 s3:
-  bucketName: "3dtilesint"
+  bucketName: "3dtiles"
   accessKeyId: "vector"
   secretKey: "vectorPassword"
   server: "10.8.0.9"
