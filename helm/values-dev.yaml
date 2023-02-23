@@ -109,3 +109,7 @@ envoy:
       requests:
         cpu: 100m
         memory: 128Mi
+logsFilebeat:
+  enabled: true
+  filebeatImage: docker.elastic.co/beats/filebeat:7.12.1
+  mountPath: /var/log/nginx

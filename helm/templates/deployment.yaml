@@ -46,6 +46,13 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
+        {{- if .Values.logsFilebeat.enabled }}
+        - name: logs
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: filebeat-config
+        {{- end }}
       containers:
         - name: {{ $releaseName }}-{{ $chartName }}-deployment
           {{- with .Values.image }}
@@ -67,6 +74,11 @@ spec:
               path: /liveness
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+          {{- if .Values.logsFilebeat.enabled }}
+          volumeMounts:
+          - name: logs
+            mountPath: {{ .Values.logsFilebeat.mountPath }}
+          {{- end }}
         {{- if .Values.authentication.opa.enabled }}
         - name: envoy
           image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
@@ -138,5 +150,16 @@ spec:
               port: 8282
             initialDelaySeconds: 5
             periodSeconds: 30
+        {{- end }}
+        {{- if .Values.logsFilebeat.enabled }}
+        - name: filebeat
+          image: {{ .Values.logsFilebeat.filebeatImage }}
+          args: [ "-c", "/etc/filebeat.yml", "-e" ]
+          volumeMounts:
+            - name: logs
+              mountPath: {{ .Values.logsFilebeat.mountPath }}
+            - name: config
+              mountPath: /etc/filebeat.yml
+              subPath: filebeat.yml
         {{- end }}
 {{- end }}
