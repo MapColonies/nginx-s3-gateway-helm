@@ -15,8 +15,7 @@ annotations:
 
 image: 
   repository: nginx-s3-gateway
-  tag: v2.0.3
-
+  tag: v2.0.4
 enabled: true
 environment: development
 initialDelaySeconds: 10
@@ -77,7 +76,7 @@ aws:
 authentication:
   jwtPublicKeySecretName: map-colonies-jwks
   opa:
-    enabled: true
+    enabled: false
     customHeaderName: 'x-api-key'
 
 opa:
