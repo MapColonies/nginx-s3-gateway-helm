@@ -15,7 +15,7 @@ annotations:
 
 image: 
   repository: nginx-s3-gateway
-  tag: v2.0.3
+  tag: v2.0.4
 
 enabled: true
 environment: staging
@@ -109,3 +109,7 @@ envoy:
       requests:
         cpu: 100m
         memory: 128Mi
+logsFilebeat:
+  enabled: true
+  filebeatImage: docker.elastic.co/beats/filebeat:7.12.1
+  mountPath: /var/log/nginx
