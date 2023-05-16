@@ -5,13 +5,13 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: {{ $releaseName }}-{{ $chartName }}-route
+  name: {{ $releaseName }}-route
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
 spec:
   to:
     kind: Service
-    name: {{ $releaseName }}-{{ $chartName }}
+    name: {{ $releaseName }}
   {{- if .Values.route.https }}
   tls:
     termination: edge

@@ -7,10 +7,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $releaseName }}-{{ $chartName }}
+  name: {{ $releaseName }}-deployment
   labels:
-    app: {{ $chartName }}
-    component: {{ $chartName }}
+    app: {{ .Release.Name }}-{{ $chartName }}
+    component: deployment
     environment: {{ include "nginx-s3-gateway.environment" . }}
     release: {{ $releaseName }}
     {{- include "nginx-s3-gateway.labels" . | nindent 4 }}
@@ -38,10 +38,10 @@ spec:
         {{- if .Values.authentication.opa.enabled }}
         - name: opa-policy
           secret:
-            secretName: {{ .Release.Name }}-{{ $chartName }}-opa
+            secretName: {{ .Release.Name }}-opa
         - name: proxy-config
           configMap:
-            name: {{ .Release.Name }}-{{ $chartName }}-envoy
+            name: {{ .Release.Name }}-envoy
         - name: jwt-public-keys
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
@@ -53,16 +53,27 @@ spec:
           configMap:
             name: filebeat-config
         {{- end }}
+        - name: jwt-js
+          configMap:
+            name: {{ .Release.Name  }}-configmap
+            items:
+            - key: "JWT_JS"
+              path: "jwt.js"
       containers:
-        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+        - name: {{ $releaseName }}
           {{- with .Values.image }}
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
+          volumeMounts:
+            - mountPath: "/etc/nginx/jwt.js"
+              name: jwt-js
+              subPath: jwt.js
+              readOnly: true
           ports:
             - containerPort: {{ .Values.env.targetPort }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+                name: {{ .Release.Name }}-configmap
           livenessProbe:
             httpGet:
               path: /liveness

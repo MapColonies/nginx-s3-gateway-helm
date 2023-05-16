@@ -27,6 +27,13 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Create service name as used by the service name label.
+*/}}
+{{- define "nginx-s3-gateway.fullname" -}}
+{{- printf "%s-%s" .Release.Name "service" }}
+{{- end }}
+
+{{/*
 Common labels
 */}}
 {{- define "nginx-s3-gateway.labels" -}}
