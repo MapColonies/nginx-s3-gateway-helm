@@ -6,17 +6,24 @@ Expand the name of the chart.
 {{- end }}
 
 {{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+If release name contains chart name it will be used as a full name.
+*/}}
+{{- define "nginx-s3-gateway.fullname" -}}
+{{- $name := default .Chart.Name }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "nginx-s3-gateway.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-Create service name as used by the service name label.
-*/}}
-{{- define "nginx-s3-gateway.fullname" -}}
-{{- printf "%s-%s" .Release.Name "service" }}
 {{- end }}
 
 {{/*
@@ -78,6 +85,17 @@ Returns the cloud provider docker registry url from global if exists or from the
 {{- else if .Values.cloudProvider.dockerRegistryUrl -}}
     {{- printf "%s/" .Values.cloudProvider.dockerRegistryUrl -}}
 {{- else -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Returns the cloud provider image pull secret name from global if exists or from the chart's values
+*/}}
+{{- define "nginx-s3-gateway.cloudProviderImagePullSecretName" -}}
+{{- if .Values.global.cloudProvider.imagePullSecretName }}
+    {{- .Values.global.cloudProvider.imagePullSecretName -}}
+{{- else if .Values.cloudProvider.imagePullSecretName -}}
+    {{- .Values.cloudProvider.imagePullSecretName -}}
 {{- end -}}
 {{- end -}}
 

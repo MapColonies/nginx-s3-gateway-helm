@@ -1,16 +1,17 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
-{{- $tag := include "nginx-s3-gateway.tag" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "nginx-s3-gateway.cloudProviderDockerRegistryUrl" . -}}
+{{- $cloudProviderImagePullSecretName := include "nginx-s3-gateway.cloudProviderImagePullSecretName" . -}}
+{{- $tag := include "nginx-s3-gateway.tag" . -}}
 {{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $releaseName }}-deployment
   labels:
-    app: {{ .Release.Name }}-{{ $chartName }}
-    component: deployment
+    app: {{ $chartName }}
+    component: {{ $chartName }}
     environment: {{ include "nginx-s3-gateway.environment" . }}
     release: {{ $releaseName }}
     {{- include "nginx-s3-gateway.labels" . | nindent 4 }}
@@ -34,6 +35,10 @@ spec:
         run: {{ $releaseName }}-{{ $chartName }}
         {{- include "nginx-s3-gateway.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if $cloudProviderImagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ $cloudProviderImagePullSecretName | quote }}
+      {{- end }}
       volumes:
         {{- if .Values.authentication.opa.enabled }}
         - name: opa-policy
@@ -48,22 +53,22 @@ spec:
         {{- end }}
         - name: jwt-js
           configMap:
-            name: {{ .Release.Name  }}-nginx-configmap
+            name: {{ .Release.Name  }}-configmap
             items:
             - key: "JWT_JS"
               path: "jwt.js"
-        - name: nginx-config
-          configMap:
-            name: {{ .Release.Name }}-nginx-configmap
-            items:
-            - key: "NGINX_CONFIG"
-              path: "nginx.conf"
         - name: nginx-root-config
           configMap:
-            name: {{ .Release.Name }}-nginx-configmap
+            name: {{ .Release.Name }}-configmap
             items:
             - key: "NGINX_ROOT_CONFIG"
               path: "nginx.conf"
+        - name: nginx-custom-config
+          configMap:
+            name: {{ .Release.Name }}-configmap
+            items:
+            - key: "NGINX_CUSTOM_CONFIG"
+              path: "default.conf.template"
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -72,22 +77,27 @@ spec:
             name: filebeat-config
         {{- end }}
       containers:
-        - name: {{ $releaseName }}
+        - name: {{ $releaseName }}-deployment
           {{- with .Values.image }}
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           volumeMounts:
-          - mountPath: "/etc/nginx/jwt.js"
-            name: jwt-js
+          - name: jwt-js
+            mountPath: /etc/nginx/jwt.js
             subPath: jwt.js
             readOnly: true
-          - mountPath: "/etc/nginx/nginx.conf"
-            name: nginx-config
+          - name: nginx-root-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
             readOnly: true
-          - mountPath: "/etc/nginx/templates/default.conf.template"
-            name: nginx-root-config
-            # subPath: nginx.conf
+          - name: nginx-custom-config
+            mountPath: /etc/nginx/templates/default.conf.template
+            subPath: default.conf.template
             readOnly: true
+          {{- if .Values.logsFilebeat.enabled }}
+          - name: logs
+            mountPath: {{ .Values.logsFilebeat.mountPath }}
+          {{- end }}
           ports:
             - containerPort: {{ .Values.env.targetPort }}
           envFrom:
@@ -104,10 +114,9 @@ spec:
               path: /liveness
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-          {{- if .Values.logsFilebeat.enabled }}
-          volumeMounts:
-          - name: logs
-            mountPath: {{ .Values.logsFilebeat.mountPath }}
+          {{- if .Values.resources.enabled }}
+          resources:
+            {{- toYaml .Values.resources.value | nindent 12 }}
           {{- end }}
         {{- if .Values.authentication.opa.enabled }}
         - name: envoy

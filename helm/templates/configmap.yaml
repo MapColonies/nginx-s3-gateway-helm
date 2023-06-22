@@ -18,7 +18,6 @@ data:
   AWS_SIGS_VERSION: {{ quote .Values.aws.sigsVersion }}
   ALLOW_DIRECTORY_LIST: {{ quote .Values.global.allowDirectoryList }}
   HEADER_TOKEN: {{ quote .Values.authentication.opa.customHeaderName }}
-  # ALLOWED_ORIGIN: {{ quote .Values.s3.cors }}
   {{ if .Values.env.tracing.enabled }}
   TELEMETRY_TRACING_ENABLED: 'true'
   TELEMETRY_TRACING_URL: {{ $tracingUrl }}
@@ -27,7 +26,7 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
-  NGINX_CONFIG: {{ tpl (.Files.Get "config/nginx.conf") . | quote }}
-  NGINX_ROOT_CONFIG: {{ tpl (.Files.Get "config/default.conf.template") . | quote }}
   JWT_JS: {{ tpl (.Files.Get "config/jwt.js") . | quote }}
+  NGINX_ROOT_CONFIG: {{ tpl (.Files.Get "config/nginx.conf") . | quote }}
+  NGINX_CUSTOM_CONFIG: {{ tpl (.Files.Get "config/default.conf.template") . | quote }}
 {{- end }}

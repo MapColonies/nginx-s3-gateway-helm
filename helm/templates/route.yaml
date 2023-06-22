@@ -8,6 +8,10 @@ metadata:
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
 spec:
+  {{- if .Values.route.host }}
+  host: {{ .Values.route.host | quote }}
+  {{- end }}
+  path: {{ .Values.route.path | default "/" }}
   to:
     kind: Service
     name: {{ $releaseName }}-service
