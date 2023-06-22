@@ -1,5 +1,4 @@
 {{- $releaseName := .Release.Name -}}
-{{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
 {{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
 apiVersion: route.openshift.io/v1
@@ -11,7 +10,7 @@ metadata:
 spec:
   to:
     kind: Service
-    name: {{ $releaseName }}
+    name: {{ $releaseName }}-service
   {{- if .Values.route.https }}
   tls:
     termination: edge
