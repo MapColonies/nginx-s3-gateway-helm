@@ -28,5 +28,5 @@ data:
   {{ end }}
   JWT_JS: {{ tpl (.Files.Get "config/jwt.js") . | quote }}
   NGINX_ROOT_CONFIG: {{ tpl (.Files.Get "config/nginx.conf") . | quote }}
-  NGINX_CUSTOM_CONFIG: {{ tpl (.Files.Get "config/default.conf.template") . | quote }}
+  NGINX_CUSTOM_CONFIG: {{ .Files.Get "config/default.conf.template" | quote }}
 {{- end }}
