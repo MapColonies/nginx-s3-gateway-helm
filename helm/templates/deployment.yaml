@@ -55,20 +55,26 @@ spec:
           configMap:
             name: {{ .Release.Name  }}-configmap
             items:
-            - key: "JWT_JS"
-              path: "jwt.js"
+            - key: JWT_JS
+              path: jwt.js
         - name: nginx-root-config
           configMap:
             name: {{ .Release.Name }}-configmap
             items:
-            - key: "NGINX_ROOT_CONFIG"
-              path: "nginx.conf"
+            - key: NGINX_ROOT_CONFIG
+              path: nginx.conf
         - name: nginx-custom-config
           configMap:
             name: {{ .Release.Name }}-configmap
             items:
-            - key: "NGINX_CUSTOM_CONFIG"
-              path: "default.conf.template"
+            - key: NGINX_CUSTOM_CONFIG
+              path: default.conf.template
+        - name: nginx-custom-header
+          configMap:
+            name: {{ .Release.Name }}-configmap
+            items:
+            - key: NGINX_CUSTOM_HEADER
+              path: dem.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -82,9 +88,9 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          command:
-            - sleep
-            - infinity
+          # command:
+          #   - sleep
+          #   - infinity
           volumeMounts:
           - name: jwt-js
             mountPath: /etc/nginx/jwt.js
@@ -97,6 +103,9 @@ spec:
           - name: nginx-custom-config
             mountPath: /etc/nginx/templates/default.conf.template
             subPath: default.conf.template
+            readOnly: true
+          - name: nginx-custom-header
+            mountPath: /etc/nginx/conf.d/header
             readOnly: true
           {{- if .Values.logsFilebeat.enabled }}
           - name: logs
