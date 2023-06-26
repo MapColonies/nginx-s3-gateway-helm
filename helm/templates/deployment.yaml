@@ -88,9 +88,9 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          # command:
-          #   - sleep
-          #   - infinity
+          command:
+            - sleep
+            - infinity
           volumeMounts:
           - name: jwt-js
             mountPath: /etc/nginx/jwt.js
