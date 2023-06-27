@@ -76,9 +76,9 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          # command:
-          #   - sleep
-          #   - infinity
+          command:
+            - sleep
+            - infinity
           volumeMounts:
           - name: nginx-root-config
             mountPath: /etc/nginx/nginx.conf
@@ -96,12 +96,12 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
-          livenessProbe:
-            httpGet:
-              path: /liveness
-              port: {{ .Values.env.targetPort }}
-            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /liveness
+          #     port: {{ .Values.env.targetPort }}
+          #   initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+          #   periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /liveness
