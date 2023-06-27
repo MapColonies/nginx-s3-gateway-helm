@@ -51,18 +51,12 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        - name: nginx-root-config
-          configMap:
-            name: {{ .Release.Name }}-configmap
-            items:
-            - key: NGINX_ROOT_CONFIG
-              path: nginx.conf
         - name: nginx-custom-header
           configMap:
             name: {{ .Release.Name }}-configmap
             items:
-            - key: NGINX_CUSTOM_HEADER
-              path: dem.conf
+              - key: NGINX_CUSTOM_HEADER
+                path: dem.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -76,32 +70,28 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          command:
-            - sleep
-            - infinity
+          # command:
+          #   - sleep
+          #   - infinity
           volumeMounts:
-          - name: nginx-root-config
-            mountPath: /etc/nginx/nginx.conf
-            subPath: nginx.conf
-            readOnly: true
-          - name: nginx-custom-header
-            mountPath: /etc/nginx/conf.d/header
-            readOnly: true
-          {{- if .Values.logsFilebeat.enabled }}
-          - name: logs
-            mountPath: {{ .Values.logsFilebeat.mountPath }}
-          {{- end }}
+            - name: nginx-custom-header
+              mountPath: /etc/nginx/conf.d/header
+              readOnly: true
+            {{- if .Values.logsFilebeat.enabled }}
+            - name: logs
+              mountPath: {{ .Values.logsFilebeat.mountPath }}
+            {{- end }}
           ports:
             - containerPort: {{ .Values.env.targetPort }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
-          # livenessProbe:
-          #   httpGet:
-          #     path: /liveness
-          #     port: {{ .Values.env.targetPort }}
-          #   initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-          #   periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ .Values.env.targetPort }}
+            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /liveness
