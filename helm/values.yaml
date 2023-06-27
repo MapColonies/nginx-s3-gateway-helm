@@ -74,6 +74,8 @@ s3:
   debug: "true"
   # sigsVersion: "4"
   # allowDirectoryList: "false"
+  header:
+    dem.conf: "if ($request_uri ~ /.+\\.terrain) {\n    add_header Access-Control-Allow-Origin *;\n    add_header Access-Control-Allow-Headers 'x-api-key';\n    add_header Content-Encoding 'gzip';\n}"
 
 aws:
   sigsVersion: "4"
