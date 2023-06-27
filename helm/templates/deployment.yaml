@@ -51,24 +51,12 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        - name: jwt-js
-          configMap:
-            name: {{ .Release.Name  }}-configmap
-            items:
-            - key: JWT_JS
-              path: jwt.js
         - name: nginx-root-config
           configMap:
             name: {{ .Release.Name }}-configmap
             items:
             - key: NGINX_ROOT_CONFIG
               path: nginx.conf
-        - name: nginx-custom-config
-          configMap:
-            name: {{ .Release.Name }}-configmap
-            items:
-            - key: NGINX_CUSTOM_CONFIG
-              path: default.conf.template
         - name: nginx-custom-header
           configMap:
             name: {{ .Release.Name }}-configmap
@@ -92,17 +80,9 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
-          - name: jwt-js
-            mountPath: /etc/nginx/jwt.js
-            subPath: jwt.js
-            readOnly: true
           - name: nginx-root-config
             mountPath: /etc/nginx/nginx.conf
             subPath: nginx.conf
-            readOnly: true
-          - name: nginx-custom-config
-            mountPath: /etc/nginx/templates/default.conf.template
-            subPath: default.conf.template
             readOnly: true
           - name: nginx-custom-header
             mountPath: /etc/nginx/conf.d/header
