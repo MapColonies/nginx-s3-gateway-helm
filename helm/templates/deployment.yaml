@@ -53,10 +53,7 @@ spec:
         {{- end }}
         - name: nginx-custom-header
           configMap:
-            name: {{ .Release.Name }}-configmap
-            items:
-              - key: dem.conf
-                path: dem.conf
+            name: {{ .Release.Name }}-header
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}

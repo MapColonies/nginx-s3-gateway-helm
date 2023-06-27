@@ -1,0 +1,11 @@
+{{- if .Values.enabled -}}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-header
+data:
+  {{ range $path, $_ := .Files.Glob "config/header/*.conf" }}
+  {{ $name := base $path }}
+  {{- printf "%s" $name }}{{ print ": " }}{{ $.Files.Get $path | quote }}
+  {{ end }}
+{{- end -}}
