@@ -55,7 +55,7 @@ spec:
           configMap:
             name: {{ .Release.Name }}-configmap
             items:
-              - key: NGINX_CUSTOM_HEADER
+              - key: dem.conf
                 path: dem.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs

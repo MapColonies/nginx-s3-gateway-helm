@@ -26,5 +26,8 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
-  NGINX_CUSTOM_HEADER: {{ .Files.Get "config/header/dem.conf" | quote }}
+  {{ range $path, $_ := .Files.Glob (printf "config/header/dem.conf") }}
+  {{ $name := base $path }}
+  {{- printf "%s" $name }}{{ print ": " }}{{ $.Files.Get $path | quote }}
+  {{ end }}
 {{- end }}
