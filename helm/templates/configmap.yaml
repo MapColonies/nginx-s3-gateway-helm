@@ -26,6 +26,6 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
-  NGINX_ROOT_CONFIG: {{ tpl (.Files.Get "config/nginx.conf") . | quote }}
+  NGINX_ROOT_CONFIG: {{ .Files.Get "config/nginx.conf" | quote }}
   NGINX_CUSTOM_HEADER: {{ .Files.Get "config/header/dem.conf" | quote }}
 {{- end }}
