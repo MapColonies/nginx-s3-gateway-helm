@@ -18,5 +18,11 @@ spec:
   {{- if .Values.route.https }}
   tls:
     termination: edge
+    {{- if .Values.route.useCert }}
+    certificate: {{ .Files.Get "config/cert.pem" | quote }}
+    key: {{ .Files.Get "config/key.pem" | quote }}
+    caCertificate: {{ .Files.Get "config/caCertificate.pem" | quote }}
+    insecureEdgeTerminationPolicy: Redirect
+    {{- end }}
   {{- end }}
 {{ end }}

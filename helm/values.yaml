@@ -61,6 +61,7 @@ route:
   path: /
   annotations:
     haproxy.router.openshift.io/rewrite-target: "/"
+  useCert: false
 
 s3:
   bucketName: dem-int
