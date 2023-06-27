@@ -14,7 +14,7 @@ metadata:
     {{- end }}
     {{- if eq .Values.ingress.type "nginx-org" }}
     nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/rewrites: "serviceName={{ .Release.Name }}-service rewrite=/"
+    nginx.org/rewrites: "serviceName={{ .Release.Name }} rewrite=/"
     {{- end }}
 spec:
   rules:
@@ -24,7 +24,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-service
+            name: {{ .Release.Name }}
             port:
               number: {{ .Values.env.targetPort }}
     {{- if .Values.ingress.host }}

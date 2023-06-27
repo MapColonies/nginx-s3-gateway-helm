@@ -14,7 +14,7 @@ spec:
   path: {{ .Values.route.path | default "/" }}
   to:
     kind: Service
-    name: {{ $releaseName }}-service
+    name: {{ $releaseName }}
   {{- if .Values.route.https }}
   tls:
     termination: edge
