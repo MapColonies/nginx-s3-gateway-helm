@@ -3,7 +3,7 @@ global:
   tracing: {}
   metrics: {}
   environment: {}
-  allowDirectoryList: 'false'
+  allowDirectoryList: false
 
 annotations:
   collectord.io/index: SPLUNK_INDEX
@@ -60,25 +60,25 @@ route:
   host:
   path: /
   annotations:
-    haproxy.router.openshift.io/rewrite-target: '/'
+    haproxy.router.openshift.io/rewrite-target: /
   useCert: false
 
 s3:
   bucketName: dem-int
   accessKeyId: raster
   secretKey: rasterPassword
-  server: '10.8.0.9'
-  serverPort: '9000'
+  server: 10.8.0.9
+  serverPort: 9000
   serverProto: http
   region: us-east-1
   style: path
-  debug: 'true'
-  nginxWorkerProcesses: '4'
-  # sigsVersion: '4'
-  # allowDirectoryList: 'false'
+  debug: true
+  nginxWorkerProcesses: 4
+  # sigsVersion: 4
+  # allowDirectoryList: false
 
 aws:
-  sigsVersion: '4'
+  sigsVersion: 4
 
 authentication:
   jwtPublicKeySecretName: map-colonies-jwks
