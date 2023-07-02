@@ -18,6 +18,7 @@ data:
   AWS_SIGS_VERSION: {{ quote .Values.aws.sigsVersion }}
   ALLOW_DIRECTORY_LIST: {{ quote .Values.global.allowDirectoryList }}
   HEADER_TOKEN: {{ quote .Values.authentication.opa.customHeaderName }}
+  NGINX_WORKER_PROCESSES: {{ quote .Values.s3.nginxWorkerProcesses }}
   {{ if .Values.env.tracing.enabled }}
   TELEMETRY_TRACING_ENABLED: 'true'
   TELEMETRY_TRACING_URL: {{ $tracingUrl }}
