@@ -74,6 +74,7 @@ s3:
   style: path
   debug: true
   nginxWorkerProcesses: 4
+  noCache: true
   # sigsVersion: 4
   # allowDirectoryList: false
 
