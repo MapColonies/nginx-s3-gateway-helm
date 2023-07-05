@@ -1,0 +1,10 @@
+{{- if .Values.enabled -}}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-location
+data:
+{{- if .Values.s3.location }}
+{{ toYaml .Values.s3.location | indent 2 }}
+{{- end }}
+{{- end -}}

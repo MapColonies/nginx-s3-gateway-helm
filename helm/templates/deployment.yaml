@@ -51,9 +51,12 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        - name: nginx-custom-header
+        - name: nginx-custom-location
           configMap:
-            name: {{ .Release.Name }}-header
+            name: {{ .Release.Name }}-location
+            items:
+              - key: s3_location.conf
+                path: s3_location.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -71,8 +74,8 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
-            - name: nginx-custom-header
-              mountPath: /etc/nginx/conf.d/header
+            - name: nginx-custom-location
+              mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
               readOnly: true
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
