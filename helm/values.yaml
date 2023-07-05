@@ -66,15 +66,19 @@ route:
 s3:
   bucketName: dem-int
   accessKeyId: raster
-  secretKey: rasterPassword
+  secretAccessKey: rasterPassword
   server: 10.8.0.9
   serverPort: 9000
   serverProto: http
   region: us-east-1
   style: path
   debug: true
+  cacheMaxSize:
+  cacheInactive:
+  cacheValidOk:
+  cacheValidNotfound:
+  cacheValidForbidden:
   nginxWorkerProcesses: 4
-  noCache: true
   # sigsVersion: 4
   # allowDirectoryList: false
 
