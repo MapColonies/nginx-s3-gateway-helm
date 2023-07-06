@@ -51,12 +51,12 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        # - name: nginx-custom-location
-        #   configMap:
-        #     name: {{ .Release.Name }}-location
-        #     items:
-        #       - key: s3_location.conf
-        #         path: s3_location.conf
+        - name: nginx-custom-location
+          configMap:
+            name: {{ .Release.Name }}-location
+            items:
+              - key: s3_location.conf
+                path: s3_location.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -74,9 +74,9 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
-            # - name: nginx-custom-location
-            #   mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
-            #   readOnly: true
+            - name: nginx-custom-location
+              mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
+              readOnly: true
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
               mountPath: {{ .Values.logsFilebeat.mountPath }}
