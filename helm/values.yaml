@@ -73,12 +73,12 @@ s3:
   region: us-east-1
   style: path
   debug: true
-  cacheMaxSize:
-  cacheInactive:
-  cacheValidOk:
-  cacheValidNotfound:
-  cacheValidForbidden:
   nginxWorkerProcesses: 4
+  cacheMaxSize: ''
+  cacheInactive: ''
+  cacheValidOk: ''
+  cacheValidNotfound: ''
+  cacheValidForbidden: ''
   # location:
   # sigsVersion: 4
   # allowDirectoryList: false
