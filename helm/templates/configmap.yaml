@@ -19,11 +19,6 @@ data:
   ALLOW_DIRECTORY_LIST: {{ quote .Values.global.allowDirectoryList }}
   HEADER_TOKEN: {{ quote .Values.authentication.opa.customHeaderName }}
   NGINX_WORKER_PROCESSES: {{ quote .Values.s3.nginxWorkerProcesses }}
-  PROXY_CACHE_MAX_SIZE: {{ quote .Values.s3.cacheMaxSize }}
-  PROXY_CACHE_INACTIVE: {{ quote .Values.s3.cacheInactive }}
-  PROXY_CACHE_VALID_OK: {{ quote .Values.s3.cacheValidOk }}
-  PROXY_CACHE_VALID_NOTFOUND: {{ quote .Values.s3.cacheValidNotfound }}
-  PROXY_CACHE_VALID_FORBIDDEN: {{ quote .Values.s3.cacheValidForbidden }}
   {{ if .Values.env.tracing.enabled }}
   TELEMETRY_TRACING_ENABLED: 'true'
   TELEMETRY_TRACING_URL: {{ $tracingUrl }}

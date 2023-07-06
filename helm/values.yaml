@@ -74,11 +74,11 @@ s3:
   style: path
   debug: true
   nginxWorkerProcesses: 4
-  cacheMaxSize: ''
-  cacheInactive: ''
-  cacheValidOk: ''
-  cacheValidNotfound: ''
-  cacheValidForbidden: ''
+  # cacheMaxSize: ''
+  # cacheInactive: ''
+  # cacheValidOk: ''
+  # cacheValidNotfound: ''
+  # cacheValidForbidden: ''
   # location:
   # sigsVersion: 4
   # allowDirectoryList: false
