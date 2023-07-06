@@ -79,7 +79,7 @@ s3:
   cacheValidNotfound:
   cacheValidForbidden:
   nginxWorkerProcesses: 4
-  location:
+  # location:
   # sigsVersion: 4
   # allowDirectoryList: false
 
