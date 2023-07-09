@@ -53,9 +53,9 @@ spec:
         {{- end }}
         - name: nginx-custom-location
           configMap:
-            name: {{ .Release.Name }}-location
+            name: {{ .Release.Name }}-configmap
             items:
-              - key: s3_location.conf
+              - key: CUSTOM_LOCATION
                 path: s3_location.conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
@@ -75,7 +75,7 @@ spec:
           #   - infinity
           volumeMounts:
             - name: nginx-custom-location
-              mountPath: /etc/nginx/conf.d/gateway
+              mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
               subPath: s3_location.conf
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs

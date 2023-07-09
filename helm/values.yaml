@@ -80,7 +80,7 @@ s3:
   # cacheValidOk: ''
   # cacheValidNotfound: ''
   # cacheValidForbidden: ''
-  # location:
+  # customLocation:
   # sigsVersion: 4
   # allowDirectoryList: false
 

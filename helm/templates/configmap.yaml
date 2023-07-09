@@ -28,4 +28,7 @@ data:
   TELEMETRY_METRICS_ENABLED: 'true'
   TELEMETRY_METRICS_URL: {{ $metricsUrl }}
   {{ end }}
+  {{ if .Values.s3.customLocation }}
+  CUSTOM_LOCATION: {{ quote .Values.s3.customLocation }}
+  {{ end }}
 {{- end }}
