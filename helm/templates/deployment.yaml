@@ -73,8 +73,8 @@ spec:
           volumeMounts:
             {{- if .Values.s3.customLocation }}
             - name: nginx-custom-location
-              mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
-              subPath: s3_location.conf
+              mountPath: /etc/nginx/templates/gateway/s3_location.conf.template
+              subPath: s3_location.conf.template
             {{- end }}
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
