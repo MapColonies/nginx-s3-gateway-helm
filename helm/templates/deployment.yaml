@@ -71,9 +71,11 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
+            {{- if .Values.s3.customLocation }}
             - name: nginx-custom-location
               mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
               subPath: s3_location.conf
+            {{- end }}
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
               mountPath: {{ .Values.logsFilebeat.mountPath }}
