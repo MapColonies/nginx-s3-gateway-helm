@@ -186,7 +186,7 @@ spec:
       initContainers:
         - name: volume-mount-hack
           {{- with .Values.image }}
-          image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
+          image: {{ $cloudProviderDockerRegistryUrl }}nginx:merge
           {{- end }}
           command: ["sh", "-c", "chown -R 999:999 /etc/nginx/conf.d/gateway/s3_location.conf"]
           volumeMounts:
