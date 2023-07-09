@@ -53,7 +53,7 @@ spec:
         {{- end }}
         - name: nginx-custom-conf
           configMap:
-            name: {{ .Release.Name }}-location
+            name: {{ .Release.Name }}-conf
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
