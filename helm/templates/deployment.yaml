@@ -51,7 +51,7 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        - name: nginx-custom-location
+        - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-location
         {{- if .Values.logsFilebeat.enabled }}
@@ -71,8 +71,13 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
-            {{- if .Values.s3.customLocation }}
-            - name: nginx-custom-location
+            {{- if .Values.s3.customServerConf }}
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/templates/gateway/s3_server.conf.template
+              subPath: s3_server.conf.template
+            {{- end }}
+            {{- if .Values.s3.customLocationConf }}
+            - name: nginx-custom-conf
               mountPath: /etc/nginx/templates/gateway/s3_location.conf.template
               subPath: s3_location.conf.template
             {{- end }}
