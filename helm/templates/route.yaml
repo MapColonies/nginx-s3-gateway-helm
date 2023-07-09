@@ -1,6 +1,6 @@
-{{- $releaseName := .Release.Name -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
 {{- if and (and (.Values.enabled) (eq $cloudProviderFlavor "openshift")) (.Values.route.enabled) -}}
+{{- $releaseName := .Release.Name -}}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
