@@ -5,6 +5,6 @@ metadata:
   name: {{ .Release.Name }}-location
 data:
   {{ if .Values.s3.customLocation }}
-  s3_location.conf: {{ quote .Values.s3.customLocation }}
+  s3_location.conf.template: {{ quote .Values.s3.customLocation }}
   {{ end }}
 {{- end }}
