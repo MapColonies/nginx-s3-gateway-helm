@@ -70,9 +70,9 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          # command:
-          #   - sleep
-          #   - infinity
+          command:
+            - sleep
+            - infinity
           volumeMounts:
             - name: nginx-custom-location
               mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
