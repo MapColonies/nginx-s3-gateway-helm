@@ -192,6 +192,5 @@ spec:
             - name: nginx-custom-location
               mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
               subPath: s3_location.conf
-              permissions: 
             {{- end }}
 {{- end }}
