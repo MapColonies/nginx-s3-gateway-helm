@@ -75,6 +75,7 @@ spec:
             - name: nginx-custom-location
               mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
               subPath: s3_location.conf
+              permissions: "0644"
             {{- end }}
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
@@ -183,16 +184,4 @@ spec:
               mountPath: /etc/filebeat.yml
               subPath: filebeat.yml
         {{- end }}
-      initContainers:
-        - name: volume-mount-hack
-          {{- with .Values.image }}
-          image: {{ $cloudProviderDockerRegistryUrl }}nginx:merge
-          {{- end }}
-          command: ["sh", "-c", "chown -R 999:999 /etc/nginx/conf.d/gateway/s3_location.conf"]
-          volumeMounts:
-            {{- if .Values.s3.customLocation }}
-            - name: nginx-custom-location
-              mountPath: /etc/nginx/conf.d/gateway/s3_location.conf
-              subPath: s3_location.conf
-            {{- end }}
 {{- end }}
