@@ -67,9 +67,9 @@ spec:
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
           # For debugging uncomment the following lines
-          # command:
-          #   - sleep
-          #   - infinity
+          command:
+            - sleep
+            - infinity
           volumeMounts:
             {{- if .Values.s3.customLocation }}
             - name: nginx-custom-location
