@@ -75,11 +75,11 @@ s3:
   debug: true
   corsEnabled: true
   nginxWorkerProcesses: 4
-  cacheMaxSize: 0g
-  cacheInactive: 0m
-  cacheValidOk: 0h
+  cacheMaxSize: 10g
+  cacheInactive: 60m
+  cacheValidOk: 1h
   cacheValidNotfound: 1m
-  cacheValidForbidden: 0s
+  cacheValidForbidden: 30s
   # customServerConf:
   # customLocationConf:
   # sigsVersion: 4
