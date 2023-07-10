@@ -92,13 +92,13 @@ spec:
                 name: {{ .Release.Name }}-configmap
           livenessProbe:
             httpGet:
-              path: /liveness
+              path: /health
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /liveness
+              path: /health
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
           {{- if .Values.resources.enabled }}
