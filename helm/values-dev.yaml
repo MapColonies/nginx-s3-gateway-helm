@@ -3,7 +3,7 @@ global:
   tracing: {}
   metrics: {}
   environment: {}
-  allowDirectoryList: "false"
+  allowDirectoryList: false
 
 annotations:
   collectord.io/index: SPLUNK_INDEX
@@ -33,10 +33,10 @@ env:
   targetPort: 8080
   tracing:
     enabled: false
-    url: 'http://localhost:55681/v1/trace'
+    url: http://localhost:55681/v1/trace
   metrics:
     enabled: false
-    url: 'http://localhost:55681/v1/metrics'
+    url: http://localhost:55681/v1/metrics
 
 resources:
   enabled: true
@@ -50,7 +50,7 @@ resources:
 
 ingress:
   enabled: false
-  type: 'nginx-kubernetes' # supported values: 'nginx-org' | 'nginx-kubernetes'
+  type: nginx-kubernetes # supported values: 'nginx-org' | 'nginx-kubernetes'
   host:
   path: /
 
@@ -60,28 +60,38 @@ route:
   host:
   path: /
   annotations:
-    haproxy.router.openshift.io/rewrite-target: "/"
+    haproxy.router.openshift.io/rewrite-target: /
+  useCert: false
 
 s3:
   bucketName: 3dtiles
   accessKeyId: vector
-  secretKey: vectorPassword
-  server: "10.8.0.9"
-  serverPort: "9000"
+  secretAccessKey: vectorPassword
+  server: 10.8.0.9
+  serverPort: 9000
   serverProto: http
   region: us-east-1
   style: path
-  debug: "true"
-  # sigsVersion: "4"
-  # allowDirectoryList: "false"
+  debug: true
+  corsEnabled: true
+  nginxWorkerProcesses: 4
+  cacheMaxSize: 10g
+  cacheInactive: 60m
+  cacheValidOk: 1h
+  cacheValidNotfound: 1m
+  cacheValidForbidden: 30s
+  # customServerConf:
+  # customLocationConf:
+  # sigsVersion: 4
+  # allowDirectoryList: false
 
 aws:
-  sigsVersion: "4"
+  sigsVersion: 4
 
 authentication:
   jwtPublicKeySecretName: map-colonies-jwks
   opa:
-    enabled: false
+    enabled: true
     customHeaderName: x-api-key
 
 opa:
@@ -115,6 +125,6 @@ envoy:
         memory: 200Mi
 
 logsFilebeat:
-  enabled: true
+  enabled: false
   filebeatImage: docker.elastic.co/beats/filebeat:7.12.1
   mountPath: /var/log/nginx
