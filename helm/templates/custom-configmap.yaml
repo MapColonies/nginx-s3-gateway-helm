@@ -4,7 +4,7 @@ apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-custom
 data:
-  log_format.conf: {{ .Files.Get "config/log_format.conf" | quote }}
+  log_format.conf: {{ tpl (.Files.Get "config/log_format.conf") . | quote }}
   {{ if .Values.s3.customServerConf }}
   s3_server.conf.template: {{ quote .Values.s3.customServerConf }}
   {{ end }}
