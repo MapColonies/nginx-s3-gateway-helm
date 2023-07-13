@@ -73,6 +73,9 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/log_format.conf
+              subPath: log_format.conf
             {{- if .Values.s3.customServerConf }}
             - name: nginx-custom-conf
               mountPath: /etc/nginx/templates/gateway/s3_server.conf.template

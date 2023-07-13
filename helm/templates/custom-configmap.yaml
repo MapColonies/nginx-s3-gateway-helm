@@ -1,9 +1,10 @@
-{{- if and (or (.Values.s3.customServerConf) (.Values.s3.customLocationConf)) (.Values.enabled) -}}
+{{- if .Values.enabled -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-custom
 data:
+  log_format.conf: {{ .Files.Get "config/log_format.conf" | quote }}
   {{ if .Values.s3.customServerConf }}
   s3_server.conf.template: {{ quote .Values.s3.customServerConf }}
   {{ end }}
