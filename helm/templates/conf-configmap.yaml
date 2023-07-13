@@ -1,4 +1,4 @@
-{{- if .Values.enabled -}}
+{{- if and (or (.Values.s3.customServerConf) (.Values.s3.customLocationConf)) (.Values.enabled) -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:

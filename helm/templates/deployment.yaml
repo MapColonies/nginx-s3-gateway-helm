@@ -44,16 +44,18 @@ spec:
         - name: opa-policy
           secret:
             secretName: {{ .Release.Name }}-opa
-        - name: proxy-config
+        - name: envoy-config
           configMap:
             name: {{ .Release.Name }}-envoy
         - name: jwt-public-keys
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
+        {{- if or (.Values.s3.customServerConf) (.Values.s3.customLocationConf) }}
         - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-conf
+        {{- end }}
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -109,13 +111,13 @@ spec:
         - name: envoy
           image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
           volumeMounts:
-          - readOnly: true
+          - name: envoy-config
             mountPath: /config
-            name: proxy-config
-          - name: jwt-public-keys
             readOnly: true
+          - name: jwt-public-keys
             mountPath: /keys/mapColonies.jwks
             subPath: mapColonies.jwks
+            readOnly: true
           args:
           - "envoy"
           - "--config-path"
