@@ -51,11 +51,9 @@ spec:
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
-        {{- if or (.Values.s3.customServerConf) (.Values.s3.customLocationConf) }}
         - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-custom
-        {{- end }}
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
