@@ -40,7 +40,7 @@ static_resources:
                             - name: {{ .Values.authentication.opa.customHeaderName }}
                           from_params:
                             - token
-                          jwt_cache_config:  
+                          jwt_cache_config:
                             jwt_cache_size: 100
                           payload_in_metadata: map_colonies_token_payload
                       rules:

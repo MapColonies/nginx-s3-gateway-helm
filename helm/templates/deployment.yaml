@@ -1,14 +1,14 @@
+{{- if .Values.enabled -}}
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "nginx-s3-gateway.cloudProviderDockerRegistryUrl" . -}}
 {{- $cloudProviderImagePullSecretName := include "nginx-s3-gateway.cloudProviderImagePullSecretName" . -}}
 {{- $tag := include "nginx-s3-gateway.tag" . -}}
-{{- if .Values.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $releaseName }}-{{ $chartName }}
+  name: {{ $releaseName }}-deployment
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
@@ -43,33 +43,65 @@ spec:
         {{- if .Values.authentication.opa.enabled }}
         - name: opa-policy
           secret:
-            secretName: {{ .Release.Name }}-{{ $chartName }}-opa
-        - name: proxy-config
+            secretName: {{ .Release.Name }}-opa
+        - name: envoy-config
           configMap:
-            name: {{ .Release.Name }}-{{ $chartName }}-envoy
+            name: {{ .Release.Name }}-envoy
         - name: jwt-public-keys
           secret:
             secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
         {{- end }}
+        - name: nginx-custom-conf
+          configMap:
+            name: {{ .Release.Name }}-custom
+        {{- if .Values.logsFilebeat.enabled }}
+        - name: logs
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: filebeat-config
+        {{- end }}
       containers:
-        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+        - name: {{ $releaseName }}-deployment
           {{- with .Values.image }}
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
+          # For debugging uncomment the following lines
+          # command:
+          #   - sleep
+          #   - infinity
+          volumeMounts:
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/log_format.conf
+              subPath: log_format.conf
+            {{- if .Values.s3.customServerConf }}
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/templates/gateway/s3_server.conf.template
+              subPath: s3_server.conf.template
+            {{- end }}
+            {{- if .Values.s3.customLocationConf }}
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/templates/gateway/s3_location.conf.template
+              subPath: s3_location.conf.template
+            {{- end }}
+            {{- if .Values.logsFilebeat.enabled }}
+            - name: logs
+              mountPath: {{ .Values.logsFilebeat.mountPath }}
+            {{- end }}
           ports:
             - containerPort: {{ .Values.env.targetPort }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+                name: {{ .Release.Name }}-configmap
           livenessProbe:
             httpGet:
-              path: /liveness
+              path: /health
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
             periodSeconds: 5
           readinessProbe:
             httpGet:
-              path: /liveness
+              path: /health
               port: {{ .Values.env.targetPort }}
             initialDelaySeconds: {{ .Values.initialDelaySeconds }}
           {{- if .Values.resources.enabled }}
@@ -80,13 +112,13 @@ spec:
         - name: envoy
           image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
           volumeMounts:
-          - readOnly: true
+          - name: envoy-config
             mountPath: /config
-            name: proxy-config
-          - name: jwt-public-keys
             readOnly: true
+          - name: jwt-public-keys
             mountPath: /keys/mapColonies.jwks
             subPath: mapColonies.jwks
+            readOnly: true
           args:
           - "envoy"
           - "--config-path"
@@ -147,5 +179,16 @@ spec:
               port: 8282
             initialDelaySeconds: 5
             periodSeconds: 30
+        {{- end }}
+        {{- if .Values.logsFilebeat.enabled }}
+        - name: filebeat
+          image: {{ .Values.logsFilebeat.filebeatImage }}
+          args: [ "-c", "/etc/filebeat.yml", "-e" ]
+          volumeMounts:
+            - name: logs
+              mountPath: {{ .Values.logsFilebeat.mountPath }}
+            - name: config
+              mountPath: /etc/filebeat.yml
+              subPath: filebeat.yml
         {{- end }}
 {{- end }}

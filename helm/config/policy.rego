@@ -4,31 +4,50 @@ import input.attributes.request.http as http_request
 import input.attributes.metadataContext.filterMetadata["envoy.filters.http.jwt_authn"].map_colonies_token_payload as payload
 import input.attributes.metadataContext.filterMetadata.map_colonies as map_colonies
 
+# Decline until I allow it
 default allow = false
 
 ### Resources Access ###
 user_has_resource_access[payload] {
   lower(payload.d[_]) = lower(map_colonies.domain)
 }
+### Resources Access ###
 
-# Check if origin is in allowed origins array
+### ORIGIN ###
+# Checks if origin is in allowed origin
 valid_origin[payload] {
   payload.ao[_] = http_request.headers.origin
 }
 
-# Check in case that allowed origin is not an array
+# Checks if origin is allowed origin (if ao is not an arr)
 valid_origin[payload] {
   payload.ao == http_request.headers.origin
 }
 
-# Check in case that there is no allowed origin
+# Checks if referrer is in allowed origin
+valid_referrer[payload] {
+  payload.ao[_] = http_request.headers.referrer
+}
+
+# Checks if referrer is allowed origin (if ao is not an arr)
+valid_referrer[payload] {
+  payload.ao == http_request.headers.referrer
+}
+
+# Checks if there is allowed origin
 valid_origin[payload] {
   not payload.ao
 }
+### ORIGIN ###
 
 # Allow authenticated access
+#allow {
+#  valid_origin[payload]
+#  user_has_resource_access[payload]
+#}
+
 allow {
-  valid_origin[payload]
+  #valid_referrer[payload]
   user_has_resource_access[payload]
 }
 
