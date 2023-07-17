@@ -1,10 +1,10 @@
 {{ if .Values.ingress.enabled -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
-  name: {{ $fullname }}
+metadata:
+  name: {{ .Release.Name }}
   labels:
-    app: {{ $fullname }}
+    app: {{ .Chart.Name }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     release: "{{ .Release.Name }}"
   annotations:
@@ -14,7 +14,7 @@ metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | 
     {{- end }}
     {{- if eq .Values.ingress.type "nginx-org" }}
     nginx.org/mergeable-ingress-type: "minion"
-    nginx.org/rewrites: "serviceName={{ .Release.Name }}-{{ .Chart.Name }}-service rewrite=/"
+    nginx.org/rewrites: "serviceName={{ .Release.Name }} rewrite=/"
     {{- end }}
 spec:
   rules:
@@ -24,7 +24,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ .Release.Name }}-{{ .Chart.Name }}-service
+            name: {{ .Release.Name }}
             port:
               number: {{ .Values.env.targetPort }}
     {{- if .Values.ingress.host }}

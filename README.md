@@ -1,8 +1,8 @@
-# nginx-s3-gateway-helm
+# nginx-s3-gateway
 This repo contains a helm chart to deploy nginx-s3-gateway as a proxy server to s3, using:
-https://github.com/MapColonies/shared-images/tree/master/nginx-s3-gateway
+[MapColonies/shared-images/nginx-s3-gateway](https://github.com/MapColonies/shared-images/tree/master/nginx-s3-gateway)
 
-## Installation
+## Install
 
 ```bash
   cd helm
