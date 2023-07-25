@@ -27,9 +27,9 @@ spec:
       targetPort: {{ .Values.envoy.port }}
       protocol: {{ .Values.env.protocol }}
     {{- end }}
-    {{- if eq $cloudProviderFlavor "minikube" }}
-    nodePort: {{ .Values.nodePort }}
-    {{- end }}
+      {{- if eq $cloudProviderFlavor "minikube" }}
+      nodePort: {{ .Values.nodePort }}
+      {{- end }}
   selector:
     app: {{ $chartName }}
     release: {{ $releaseName }}
