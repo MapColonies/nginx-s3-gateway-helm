@@ -42,11 +42,11 @@ resources:
   enabled: false
   value:
     limits:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 500m
+      memory: 900Mi
     requests:
-      cpu: 50m
-      memory: 200Mi
+      cpu: 125m
+      memory: 900Mi
 
 ingress:
   enabled: false
@@ -102,10 +102,10 @@ opa:
     enabled: false
     value:
       limits:
-        cpu: 200m
+        cpu: 400m
         memory: 200Mi
       requests:
-        cpu: 50m
+        cpu: 100m
         memory: 200Mi
 
 envoy:
@@ -118,11 +118,11 @@ envoy:
     enabled: false
     value:
       limits:
-        cpu: 200m
-        memory: 200Mi
+        cpu: 500m
+        memory: 900Mi
       requests:
-        cpu: 50m
-        memory: 200Mi
+        cpu: 125m
+        memory: 900Mi
 
 logsFilebeat:
   enabled: false
