@@ -13,7 +13,7 @@ annotations:
   collectord.io/nettable-output: devnull
   collectord.io/stats-output: devnull
 
-image: 
+image:
   repository: nginx-s3-gateway
   tag: v2.1.1
 
