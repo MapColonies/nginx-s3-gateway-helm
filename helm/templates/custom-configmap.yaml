@@ -11,4 +11,7 @@ data:
   {{ if .Values.s3.customLocationConf }}
   s3_location.conf.template: {{ quote .Values.s3.customLocationConf }}
   {{ end }}
+  {{ if .Values.s3.corsConf }}
+  cors.conf.template: {{ quote .Values.s3.corsConf }}
+  {{ end }}
 {{- end }}

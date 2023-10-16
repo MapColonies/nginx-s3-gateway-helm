@@ -84,6 +84,11 @@ spec:
               mountPath: /etc/nginx/templates/gateway/s3_location.conf.template
               subPath: s3_location.conf.template
             {{- end }}
+            {{- if .Values.s3.corsConf }}
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/templates/gateway/cors.conf.template
+              subPath: cors.conf.template
+            {{- end }}
             {{- if .Values.logsFilebeat.enabled }}
             - name: logs
               mountPath: {{ .Values.logsFilebeat.mountPath }}
