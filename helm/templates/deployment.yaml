@@ -15,10 +15,8 @@ metadata:
     environment: {{ include "nginx-s3-gateway.environment" . }}
     release: {{ $releaseName }}
     {{- include "nginx-s3-gateway.labels" . | nindent 4 }}
-{{- with .Values.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
+    collectord.io/index: {{ quote .Values.splunkIndex }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -40,17 +38,6 @@ spec:
         - name: {{ $cloudProviderImagePullSecretName | quote }}
       {{- end }}
       volumes:
-        {{- if .Values.authentication.opa.enabled }}
-        - name: opa-policy
-          secret:
-            secretName: {{ .Release.Name }}-opa
-        - name: envoy-config
-          configMap:
-            name: {{ .Release.Name }}-envoy
-        - name: jwt-public-keys
-          secret:
-            secretName: {{ .Values.authentication.jwtPublicKeySecretName }}
-        {{- end }}
         - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-custom
@@ -74,6 +61,12 @@ spec:
             - name: nginx-custom-conf
               mountPath: /etc/nginx/log_format.conf
               subPath: log_format.conf
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template 
+            - name: nginx-custom-conf
+              mountPath: /etc/nginx/nginx.conf.template
+              subPath: nginx.conf.template
             {{- if .Values.s3.customServerConf }}
             - name: nginx-custom-conf
               mountPath: /etc/nginx/templates/gateway/s3_server.conf.template
@@ -108,78 +101,6 @@ spec:
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}
           {{- end }}
-        {{- if .Values.authentication.opa.enabled }}
-        - name: envoy
-          image: "{{ .Values.envoy.image }}:{{ .Values.envoy.imageTag }}"
-          volumeMounts:
-          - name: envoy-config
-            mountPath: /config
-            readOnly: true
-          - name: jwt-public-keys
-            mountPath: /keys/mapColonies.jwks
-            subPath: mapColonies.jwks
-            readOnly: true
-          args:
-          - "envoy"
-          - "--config-path"
-          - "/config/envoy.yaml"
-          ports:
-            - name: http
-              containerPort: {{ .Values.envoy.port }}
-              protocol: {{ .Values.env.protocol }}
-            - name: admin
-              containerPort: {{ .Values.envoy.port }}
-              protocol: {{ .Values.env.protocol }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health?plugins
-          #     port: 8000
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 30
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health?plugins
-          #     port: 8000
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 30
-          {{- if .Values.envoy.resources.enabled }}
-          resources:
-            {{- toYaml .Values.envoy.resources.value | nindent 12 }}
-          {{- end }}
-        - name: opa
-          image: "{{ .Values.opa.image }}:{{ .Values.opa.imageTag }}"
-          volumeMounts:
-          - readOnly: true
-            mountPath: /policy
-            name: opa-policy
-          args:
-          - "run"
-          - "--server"
-          - "--addr=0.0.0.0:8181"
-          - "--diagnostic-addr=0.0.0.0:8282"
-          - "--set=plugins.envoy_ext_authz_grpc.add=:{{ .Values.opa.imageTag }}"
-          - "--set=plugins.envoy_ext_authz_grpc.path=envoy/authz/allow"
-          {{- if .Values.opa.enableLogging }}
-          - "--set=decision_logs.console=true"
-          {{- end }}
-          - "/policy/policy.rego"
-          {{- if .Values.opa.resources.enabled }}
-          resources:
-            {{- toYaml .Values.opa.resources.value | nindent 12 }}
-          {{- end }}
-          livenessProbe:
-            httpGet:
-              path: /health?plugins
-              port: 8282
-            initialDelaySeconds: 5
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /health?plugins
-              port: 8282
-            initialDelaySeconds: 5
-            periodSeconds: 30
-        {{- end }}
         {{- if .Values.logsFilebeat.enabled }}
         - name: filebeat
           image: {{ .Values.logsFilebeat.filebeatImage }}

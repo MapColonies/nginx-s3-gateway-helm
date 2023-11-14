@@ -5,17 +5,16 @@ global:
   environment: {}
   allowDirectoryList: false
 
-annotations:
-  collectord.io/index: SPLUNK_INDEX
-  collectord.io/logs-output: splunk
-  collectord.io/procstats-output: devnull
-  collectord.io/netstats-output: devnull
-  collectord.io/nettable-output: devnull
-  collectord.io/stats-output: devnull
+splunkIndex: ''
+
+authorization:
+  enabled: true
+  domain: dem
+  url: http://opa-dev-opa-service.infra-services/v1/data/http/authz/decision
 
 image:
   repository: nginx-s3-gateway
-  tag: v2.1.1
+  tag: v3.0.0
 
 enabled: true
 environment: production
@@ -87,12 +86,6 @@ s3:
 
 aws:
   sigsVersion: 4
-
-authentication:
-  jwtPublicKeySecretName: map-colonies-jwks
-  opa:
-    enabled: true
-    customHeaderName: x-api-key
 
 opa:
   image: openpolicyagent/opa
