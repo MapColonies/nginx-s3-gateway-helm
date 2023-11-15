@@ -68,8 +68,8 @@ spec:
               mountPath: /etc/nginx/templates/default.conf.template
               subPath: default.conf.template 
             - name: nginx-custom-conf
-              mountPath: /etc/nginx/nginx.conf.template
-              subPath: nginx.conf.template
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
             {{- if .Values.s3.customServerConf }}
             - name: nginx-custom-conf
               mountPath: /etc/nginx/templates/gateway/s3_server.conf.template
