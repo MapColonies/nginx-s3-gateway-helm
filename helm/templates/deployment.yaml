@@ -41,6 +41,10 @@ spec:
         - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-custom
+            items:
+              - key: 21-envsubst-on-nginx-conf.sh
+                path: 21-envsubst-on-nginx-conf.sh        
+                mode: 0777
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
