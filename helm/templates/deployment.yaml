@@ -41,10 +41,6 @@ spec:
         - name: nginx-custom-conf
           configMap:
             name: {{ .Release.Name }}-custom
-            items:
-              - key: 21-envsubst-on-nginx-conf.sh
-                path: 21-envsubst-on-nginx-conf.sh        
-                mode: 0777
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -52,15 +48,6 @@ spec:
           configMap:
             name: filebeat-config
         {{- end }}
-      initContainers:
-        - name: set-permissions
-          image: busybox
-          # command: ["chmod", "+x", "/docker-entrypoint.d/21-envsubst-on-nginx-conf.sh"]
-          volumeMounts:
-            - name: nginx-custom-conf
-              mountPath: /docker-entrypoint.d/21-envsubst-on-nginx-conf.sh
-              subPath: 21-envsubst-on-nginx-conf.sh
-              readOnly: false
       containers:
         - name: {{ $releaseName }}-deployment
           {{- with .Values.image }}
@@ -71,10 +58,6 @@ spec:
           #   - sleep
           #   - infinity
           volumeMounts:
-            - name: nginx-custom-conf
-              mountPath: /docker-entrypoint.d/21-envsubst-on-nginx-conf.sh
-              subPath: 21-envsubst-on-nginx-conf.sh
-              readOnly: false
             - name: nginx-custom-conf
               mountPath: /etc/nginx/auth.js
               subPath: auth.js
