@@ -48,6 +48,10 @@ spec:
           configMap:
             name: filebeat-config
         {{- end }}
+      # securityContext:
+      #   runAsUser: 1099
+      #   runAsGroup: 1099
+      #   fsGroup: 1099
       initContainers:
         - name: set-permissions
           image: busybox
@@ -56,6 +60,7 @@ spec:
             - name: nginx-custom-conf
               mountPath: /docker-entrypoint.d/21-envsubst-on-nginx-conf.sh
               subPath: 21-envsubst-on-nginx-conf.sh
+              readOnly: false
       containers:
         - name: {{ $releaseName }}-deployment
           {{- with .Values.image }}
