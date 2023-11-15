@@ -51,8 +51,6 @@ spec:
       initContainers:
         - name: set-permissions
           image: busybox
-          securityContext:
-            runAsUser: 0
           # command: ["chmod", "+x", "/docker-entrypoint.d/21-envsubst-on-nginx-conf.sh"]
           volumeMounts:
             - name: nginx-custom-conf
