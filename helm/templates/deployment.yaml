@@ -52,9 +52,7 @@ spec:
         - name: set-permissions
           image: busybox
           securityContext:
-            runAsUser: 101
-            runAsGroup: 101
-            fsGroup: 101
+            runAsUser: 0
           # command: ["chmod", "+x", "/docker-entrypoint.d/21-envsubst-on-nginx-conf.sh"]
           volumeMounts:
             - name: nginx-custom-conf
