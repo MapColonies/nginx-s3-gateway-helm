@@ -48,6 +48,14 @@ spec:
           configMap:
             name: filebeat-config
         {{- end }}
+      initContainers:
+        - name: set-permissions
+          image: busybox
+          command: ["chmod", "+x", "/docker-entrypoint.d/21-envsubst-on-nginx-conf.sh"]
+          volumeMounts:
+            - name: nginx-custom-conf
+              mountPath: /docker-entrypoint.d/21-envsubst-on-nginx-conf.sh
+              subPath: 21-envsubst-on-nginx-conf.sh
       containers:
         - name: {{ $releaseName }}-deployment
           {{- with .Values.image }}
