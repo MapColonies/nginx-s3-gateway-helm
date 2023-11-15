@@ -14,7 +14,7 @@ authorization:
 
 image:
   repository: nginx-s3-gateway
-  tag: v3.0.0
+  tag: v3.0.1
 
 enabled: true
 environment: production
