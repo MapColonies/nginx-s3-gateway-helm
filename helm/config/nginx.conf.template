@@ -1,4 +1,4 @@
-worker_processes {{ .Values.s3.nginxWorkerProcesses }};
+worker_processes ${NGINX_WORKER_PROCESSES};
 
 error_log  /dev/stdout info;
 pid        /tmp/nginx.pid;
