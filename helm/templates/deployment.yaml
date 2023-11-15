@@ -62,10 +62,6 @@ spec:
           {{- with .Values.image }}
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh", "-c", "chmod 777 /docker-entrypoint.d/21-envsubst-on-nginx-conf.sh"]
           # For debugging uncomment the following lines
           # command:
           #   - sleep
