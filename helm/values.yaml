@@ -8,9 +8,9 @@ global:
 splunkIndex: ''
 
 authorization:
-  enabled: true
+  enabled: false
   domain: dem
-  url: http://opa-dev-opa-service.infra-services/v1/data/http/authz/decision
+  url:
 
 image:
   repository: nginx-s3-gateway
