@@ -346,10 +346,6 @@ server {
         # it to be applied within different contexts.
         include /etc/nginx/conf.d/gateway/cors.conf;
 
-        # 'always' is specified so that the header field will be added
-        # regardless of the response code - not only to 20X or 30X
-        add_header Access-Control-Allow-Origin '*' always;
-        
         return 404;
     }
 
