@@ -87,6 +87,8 @@ spec:
           ports:
             - containerPort: {{ .Values.env.targetPort }}
           envFrom:
+            - secretRef:
+                name: {{ template "nginx-s3-gateway.secretName" . }}
             - configMapRef:
                 name: {{ .Release.Name }}-configmap
           livenessProbe:

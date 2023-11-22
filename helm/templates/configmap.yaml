@@ -6,8 +6,6 @@ kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-configmap
 data:
-  AWS_ACCESS_KEY_ID: {{ quote .Values.s3.accessKeyId }}
-  AWS_SECRET_ACCESS_KEY: {{ quote .Values.s3.secretAccessKey }}
   S3_BUCKET_NAME: {{ quote .Values.s3.bucketName }}
   S3_SERVER: {{ quote .Values.s3.server }}
   S3_SERVER_PORT: {{ quote .Values.s3.serverPort }}
