@@ -38,7 +38,7 @@ env:
     url: http://localhost:55681/v1/metrics
 
 resources:
-  enabled: false
+  enabled: true
   value:
     limits:
       cpu: 500m
@@ -92,7 +92,7 @@ opa:
   imageTag: 0.29.4-envoy-3
   port: 9191
   resources:
-    enabled: false
+    enabled: true
     value:
       limits:
         cpu: 400m
@@ -108,7 +108,7 @@ envoy:
   maxRequestBytes: 8192
   requestedDomain: dem
   resources:
-    enabled: false
+    enabled: true
     value:
       limits:
         cpu: 500m
