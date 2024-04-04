@@ -40,7 +40,7 @@ spec:
       volumes:
         - name: nginx-custom-conf
           configMap:
-            name: {{ .Release.Name }}-custom
+            name: {{ $releaseName }}-{{ $chartName }}-custom-configmap
         {{- if .Values.logsFilebeat.enabled }}
         - name: logs
           emptyDir: {}
@@ -90,7 +90,7 @@ spec:
             - secretRef:
                 name: {{ template "nginx-s3-gateway.secretName" . }}
             - configMapRef:
-                name: {{ .Release.Name }}-configmap
+                name: {{ $releaseName }}-{{ $chartName }}-configmap
           livenessProbe:
             httpGet:
               path: /health

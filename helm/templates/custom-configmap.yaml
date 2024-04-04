@@ -1,8 +1,10 @@
 {{- if .Values.enabled -}}
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "nginx-s3-gateway.name" . -}}
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-custom
+  name: {{ $releaseName }}-{{ $chartName }}-custom-configmap
 data:
   auth.js: {{ tpl (.Files.Get "config/auth.js") . | quote }}
   log_format.conf: {{ tpl (.Files.Get "config/log_format.conf") . | quote }}

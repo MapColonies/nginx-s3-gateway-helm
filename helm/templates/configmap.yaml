@@ -1,10 +1,12 @@
 {{- if .Values.enabled -}}
+{{- $releaseName := .Release.Name -}}
+{{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $tracingUrl := include "nginx-s3-gateway.tracingUrl" . -}}
 {{- $metricsUrl := include "nginx-s3-gateway.metricsUrl" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-configmap
+  name: {{ $releaseName }}-{{ $chartName }}-configmap
 data:
   S3_BUCKET_NAME: {{ quote .Values.s3.bucketName }}
   S3_SERVER: {{ quote .Values.s3.server }}
