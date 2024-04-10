@@ -8,7 +8,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $releaseName }}-deployment
+  name: {{ $releaseName }}-{{ $chartName }}-deployment
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
