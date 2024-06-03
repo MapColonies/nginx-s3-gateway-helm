@@ -61,6 +61,8 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+# Output of 'npm pack' or 'helm package helm'
+*.tgz
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
