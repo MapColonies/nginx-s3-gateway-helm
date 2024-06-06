@@ -36,23 +36,57 @@ Usage:
 {{- end -}}
 {{ $dst | toYaml }}
 {{- end -}}
-
 {{/*
 End of usage example
 */}}
 
 {{/*
+Common definitions
+*/}}
+{{- define "merged.ca" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.ca .Values.global.ca ) "context" . ) }}
+{{- end -}}
+
+{{- define "merged.podAnnotations" -}}
+{{- $globalAnnotations := dict }}
+{{- range $key, $value := .Values.global.podAnnotations }}
+  {{- if $value.enabled }}
+    {{- $globalAnnotations = merge $globalAnnotations $value.annotations }}
+  {{- end }}
+{{- end }}
+{{- $mergedAnnotations := merge .Values.podAnnotations $globalAnnotations }}
+{{- range $key, $value := $mergedAnnotations }}
+{{ $key }}: "{{ $value }}"
+{{- end }}
+{{- end }}
+
+{{- define "merged.extraVolumes" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.extraVolumes .Values.global.extraVolumes ) "context" . ) }}
+{{- end -}}
+
+{{- define "merged.sidecars" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.sidecars .Values.global.sidecars ) "context" . ) }}
+{{- end -}}
+
+{{- define "merged.extraVolumeMounts" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.extraVolumeMounts .Values.global.extraVolumeMounts ) "context" . ) }}
+{{- end -}}
+
+{{- define "merged.metrics" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.env.metrics .Values.global.metrics ) "context" . ) }}
+{{- end -}}
+
+{{- define "merged.tracing" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.env.tracing .Values.global.tracing ) "context" . ) }}
+{{- end -}}
+
+{{/*
 Custom definitions
 */}}
-
-{{- define "common.s3.merged" -}}
-{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.S3.destination .Values.global.S3.destination ) "context" . ) }}
+{{- define "merged.S3" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.S3 .Values.global.S3 ) "context" . ) }}
 {{- end -}}
 
-{{- define "common.serving.merged" -}}
-{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.serving .Values.global.serving ) "context" . ) }}
-{{- end -}}
-
-{{- define "common.filebeat.merged" -}}
-{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.filebeat .Values.global.filebeat ) "context" . ) }}
+{{- define "merged.opala" -}}
+{{- include "common.tplvalues.merge" ( dict "values" ( list .Values.opala .Values.global.opala ) "context" . ) }}
 {{- end -}}

@@ -1,10 +1,11 @@
+{{- $fullName := include "nginx-s3-gateway.fullname" . -}}
+{{- $opala := (include "merged.opala" . ) | fromYaml }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-custom
+  name: {{ $fullName }}-custom
 data:
-  {{-  $serving := (include "common.serving.merged" . ) | fromYaml }}
-  {{ if $serving.authorization.enabled }}
+  {{ if $opala.enabled }}
   auth.js: {{ tpl (.Files.Get "config/auth.js") . | quote }}
   {{ end }}
   log_format.conf: {{ tpl (.Files.Get "config/log_format.conf") . | quote }}

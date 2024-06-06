@@ -1,10 +1,11 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "nginx-s3-gateway.name" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
+{{- $fullNeme := include "nginx-s3-gateway.fullname" . -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $releaseName }}-{{ $chartName }}
+  name: {{ $fullNeme }}
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
@@ -20,11 +21,11 @@ spec:
       port: {{ .Values.env.port }}
       targetPort: {{ .Values.env.targetPort }}
       protocol: {{ .Values.env.protocol }}
-    {{- if eq $cloudProviderFlavor "minikube" }}
-    nodePort: {{ .Values.nodePort }}
-    {{- end }}
+      {{- if eq $cloudProviderFlavor "minikube" }}
+      nodePort: {{ .Values.nodePort }}
+      {{- end }}
   selector:
     app: {{ $chartName }}
     release: {{ $releaseName }}
-    run: {{ $releaseName }}-{{ $chartName }}
+    run: {{ $fullNeme }}
     {{- include "nginx-s3-gateway.selectorLabels" . | nindent 4 }}

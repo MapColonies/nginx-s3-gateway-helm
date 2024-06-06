@@ -1,118 +1,96 @@
 global:
-  S3: 
-    destination:
-      accessKey: vector
-      secretAccessKey: vectorPassword
-      server: 10.8.0.9
-      serverPort: 9000
-      serverProto: http
-      bucket: 3dtiles
-      region: "us-east-1"
-      style: path
-      sslEnabled: false
-      maxAttempts: 3
-      sigVersion: 4
-      storageClass: 'STANDARD'
+  cloudProvider:
+    dockerRegistryUrl: 
+    flavor: openshift
+    imagePullSecretName: 
+  imagePullPolicy: IfNotPresent
+  tracing: {}
+  metrics: {}
+  environment: 'development'
 
-  serving:
-    authorization:
-      enabled: true
-      domain: '3d'
-      url: 'http://opa-dev-opa-service.infra-services/v1/data/http/authz/decision'
-
-  filebeat:
-    enabled: false
-    image: docker.elastic.co/beats/filebeat:7.12.1
-    mountPath: /usr/src/app/logs
-    pycsw:
-      mountPath: /var/log/pycsw
-      logFile: pycsw.log
-    nginxS3Gateway: 
-      mountPath: /var/log/nginx
-    elastic:
-      host: 10.8.0.8
-      port: 9200
-      protocol: http
-      username: 
-      password:
-      index: 3d-np
-      sslEnabled: false
-    kibana:
-      host: 10.8.0.8:5601
-
-S3: 
-  destination:
+  S3:
     accessKey: ''
     secretAccessKey: ''
-    server: 10.8.0.9
-    serverPort: 9000
+    server: ''
+    serverPort: 
     serverProto: ''
     bucket: ''
     region: ''
     style: ''
-    sslEnabled: false
-    maxAttempts: 
     sigVersion: 
-    storageClass: ''
 
-serving:
-  authorization:
-    enabled: true
-    domain: '3d'
-    url: 'http://opa-dev-opa-service.infra-services/v1/data/http/authz/decision'
-
-filebeat:
+  opala:
     enabled: false
-    image: docker.elastic.co/beats/filebeat:7.12.1
-    mountPath: /usr/src/app/logs
-    pycsw:
-      mountPath: /var/log/pycsw
-      logFile: pycsw.log
-    nginxS3Gateway: 
-      mountPath: /var/log/nginx
-    elastic:
-      host: 10.8.0.8
-      port: 9200
-      protocol: http
-      username: 
-      password:
-      index: 3d-np
-      sslEnabled: false
-    kibana:
-      host: 10.8.0.8:5601
+    domain: ''
+    url: ''
 
-enabled: true
 cloudProvider:
     dockerRegistryUrl: 
-    imagePullSecretName: ''
-    flavor: openshift
-
-initialDelaySeconds: 10
-
-nodePort: 30030
-
-allowDirectoryList: 'false'
-
-replicaCount: 1
-
-annotations:
-  collectord.io/index: ''
-  collectord.io/logs-output: ''
+    flavor: 
+    imagePullSecretName: 
+imagePullPolicy: 
+environment: 
 
 image:
-  repository: 'nginx-s3-gateway'
-  tag: ''
+  repository: nginx-s3-gateway
+  tag: latest
+
+nodePort: 30030
+replicaCount: 1
+revisionHistoryLimit: 5 # Amount of revisions we keep
+
+S3: 
+  accessKey: ''
+  secretAccessKey: ''
+  server: ''
+  serverPort: 
+  serverProto: ''
+  bucket: ''
+  region: ''
+  style: ''
+  sigVersion: 
+
+opala:
+  enabled: false
+  domain: ''
+  url: ''
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  path: /health
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  path: /health
+
+extraVolumes: {}
+
+extraVolumeMounts: {}
+
+sidecars: {}
+
+podAnnotations: {}
 
 env:
   protocol: TCP
   port: 8080
   targetPort: 8080
+  debug: false
+  corsEnabled: false
+  nginxWorkerProcesses: 4
+  allowDirectoryList: 'false'
   tracing:
     enabled: false
-    url: 'http://localhost:55681/v1/trace'
+    url: ''
   metrics:
     enabled: false
-    url: http://localhost:55681/v1/metrics
+    url: ''
 
 resources:
   enabled: true
@@ -127,48 +105,54 @@ resources:
 ingress:
   enabled: false
   path: /
-  host: 'localhost'
-  type: nginx-kubernetes # supported values: 'nginx-org' | 'nginx-kubernetes'
+  host: localhost
+  cors:
+    enabled: true
+    origin: '*'
 
 route:
   enabled: true
-  https: true
-  host: 
   path: /
+  host: 
+  timeout:
+    enabled: false # defaults to 30s by openshift
+    duration: 60s # supported units (us, ms, s, m, h, d)
+  rewriteTarget: '/'
+  tls:
+    enabled: false
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+    useCerts: false
+    certificate: ''
+    key: ''
+    caCertificate: ''
   
-  annotations:
-    haproxy.router.openshift.io/rewrite-target: /
-  useCert: false
-  
-debug: true
-corsEnabled: true
-nginxWorkerProcesses: 4
-customServerConf: "expires 4w;\n"
-customLocationConf: "proxy_no_cache 1;\n"
+customServerConf: "" # Example: "expires 4w;\n"
+customLocationConf: "" # Example: "proxy_no_cache 1;\n"
 
 cache:
-  maxSize: 10g
-  inactive: 60m
-  validOk: 1h
-  validNotfound: 1m
-  validForbidden: 30s
+  maxSize: # Example: 10g
+  inactive: # Example: 60m
+  validOk: # Example: 1h
+  validNotFound: # Example: 1m
+  validForbidden: # Example: 30s
 
 redis:
-  enabled: true
+  enabled: false
   host: ''
   port: 
-  sslEnabled: true
+  sslEnabled: false
   skipCache: 0 # 0 for false. If it contains any other value, the service will skip cache in redis
-  cacheExpirationTime: 1000
-  connectionTimeout: 100
-  sendTimeout: 100
-  readTimeout: 100
-  maxIdleTimeout: 200
-  poolSize: 100
+  cacheExpirationTime: 10000
+  connectionTimeout: 1000
+  sendTimeout: 1000
+  readTimeout: 1000
+  maxIdleTimeout: 2000
+  poolSize: 1000
   authentication:
-    requirePassword: true
+    requirePassword: false
     password: ''
     username: ''
   prefix:
-    enabled: true
+    enabled: false
     value: ''

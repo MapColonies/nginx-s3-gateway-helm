@@ -1,38 +1,46 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "nginx-s3-gateway.name" . -}}
+{{- $fullName := include "nginx-s3-gateway.fullname" . -}}
 {{- $cloudProviderFlavor := include "nginx-s3-gateway.cloudProviderFlavor" . -}}
-{{- $cloudProviderImagePullSecretName := include "nginx-s3-gateway.cloudProviderImagePullSecretName" . -}}
 {{- $tag := include "nginx-s3-gateway.tag" . -}}
+{{- $cloudProviderImagePullSecretName := include "nginx-s3-gateway.cloudProviderImagePullSecretName" . -}}
 {{- $cloudProviderDockerRegistryUrl := include "nginx-s3-gateway.cloudProviderDockerRegistryUrl" . -}}
+{{- $podAnnotations := (include "merged.podAnnotations" . ) | fromYaml }}
+{{- $extraVolumes := (include "merged.extraVolumes" . ) | fromYaml }}
+{{- $extraVolumeMounts := (include "merged.extraVolumeMounts" . ) | fromYaml }}
+{{- $sidecars := (include "merged.sidecars" . ) | fromYaml }}
+{{- $opala := (include "merged.opala" . ) | fromYaml }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $releaseName }}-{{ $chartName }}
+  name: {{ $fullName }}
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
     environment: {{ include "nginx-s3-gateway.environment" . }}
     release: {{ $releaseName }}
     {{- include "nginx-s3-gateway.labels" . | nindent 4 }}
-{{- with .Values.annotations }}
-  annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   selector:
     matchLabels:
       app: {{ $chartName }}
       release: {{ $releaseName }}
-      run: {{ $releaseName }}-{{ $chartName }}
+      run: {{ $fullName }}
       {{- include "nginx-s3-gateway.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         app: {{ $chartName }}
         release: {{ $releaseName }}
-        run: {{ $releaseName }}-{{ $chartName }}
+        run: {{ $fullName }}
         {{- include "nginx-s3-gateway.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{ include "merged.podAnnotations" . | nindent 8 }}
+      {{- if .Values.resetOnConfigChange }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- end }}
     spec:
       {{- if $cloudProviderImagePullSecretName }}
       imagePullSecrets:
@@ -41,27 +49,14 @@ spec:
       volumes:
         - name: nginx-custom-conf
           configMap:
-            name: {{ .Release.Name }}-custom
-        {{-  $filebeat := (include "common.filebeat.merged" . ) | fromYaml }}
-        {{- if $filebeat.enabled }}
-        - name: logs
-          emptyDir: {}
-        - name: config
-          configMap:
-            name: filebeat-config-{{ .Release.Name }}
-        {{- end }}
+            name: {{ $fullName }}-custom
       containers:
-        - name: {{ $releaseName }}-{{ $chartName }}-deployment
+        - name: {{ $fullName }}-deployment
           {{- with .Values.image }}
           image: {{ $cloudProviderDockerRegistryUrl }}{{ .repository }}:{{ $tag }}
           {{- end }}
-          # For debugging uncomment the following lines
-          # command:
-          #   - sleep
-          #   - infinity
           volumeMounts:
-            {{-  $serving := (include "common.serving.merged" . ) | fromYaml }}
-            {{ if $serving.authorization.enabled }}
+            {{ if $opala.enabled }}
             - name: nginx-custom-conf
               mountPath: /etc/nginx/auth.js
               subPath: auth.js
@@ -91,38 +86,41 @@ spec:
               mountPath: /etc/nginx/templates/gateway/s3_location.conf.template
               subPath: s3_location.conf.template
             {{- end }}
-            {{- if $filebeat.enabled }}
-            - name: logs
-              mountPath: {{ $filebeat.nginxS3Gateway.mountPath }}
+            {{- if $extraVolumeMounts -}}
+              {{ toYaml $extraVolumeMounts | nindent 12 }}
             {{- end }}
           ports:
             - containerPort: {{ .Values.env.targetPort }}
+              protocol: {{ .Values.env.protocol }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+                name: {{ $fullName }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.env.targetPort }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: {{ .Values.env.targetPort }}
+          {{- end }}
           {{- if .Values.resources.enabled }}
           resources:
             {{- toYaml .Values.resources.value | nindent 12 }}
           {{- end }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: {{ .Values.env.targetPort }}
-            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: {{ .Values.env.targetPort }}
-            initialDelaySeconds: {{ .Values.initialDelaySeconds }}
-        {{- if $filebeat.enabled }}
-        - name: filebeat
-          image: {{ $filebeat.image }}
-          args: [ "-c", "/etc/filebeat.yml", "-e" ]
-          volumeMounts:
-            - name: logs
-              mountPath: {{ $filebeat.nginxS3Gateway.mountPath }}
-            - name: config
-              mountPath: /etc/filebeat.yml
-              subPath: filebeat.yml
+        {{- if $sidecars }}
+        {{ tpl ($sidecars) . | nindent 8 }}
+        {{- end }}
+      volumes:
+        {{- if $extraVolumes -}}
+          {{ tpl (toYaml $extraVolumes) . | nindent 8 }}
         {{- end }}
