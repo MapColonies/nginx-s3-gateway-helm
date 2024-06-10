@@ -16,14 +16,14 @@ spec:
   to:
     kind: Service
     name: {{ $releaseName }}-{{ $chartName }}
-  {{- if .Values.route.https }}
+  {{- if .Values.route.tls.enabled }}
   tls:
     termination: edge
-    {{- if .Values.route.useCert }}
-    certificate: {{ .Files.Get "config/cert.pem" | quote }}
-    key: {{ .Files.Get "config/key.pem" | quote }}
-    caCertificate: {{ .Files.Get "config/caCertificate.pem" | quote }}
+    {{- if .Values.route.tls.useCert }}
+    certificate: {{ .Values.route.tls.certificate | quote }}
+    key: {{ .Values.route.tls.key | quote }}
+    caCertificate: {{ .Values.route.tls.caCertificate | quote }}
     insecureEdgeTerminationPolicy: Redirect
     {{- end }}
   {{- end }}
-{{ end }}
+{{- end -}}
