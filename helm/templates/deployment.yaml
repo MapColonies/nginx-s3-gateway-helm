@@ -46,10 +46,6 @@ spec:
       imagePullSecrets:
         - name: {{ $cloudProviderImagePullSecretName | quote }}
       {{- end }}
-      volumes:
-        - name: nginx-custom-conf
-          configMap:
-            name: {{ $fullName }}-custom
       containers:
         - name: {{ $fullName }}-deployment
           {{- with .Values.image }}
@@ -121,6 +117,9 @@ spec:
         {{ tpl ($sidecars) . | nindent 8 }}
         {{- end }}
       volumes:
+        - name: nginx-custom-conf
+          configMap:
+            name: {{ $fullName }}-custom
         {{- if $extraVolumes -}}
-          {{ tpl (toYaml $extraVolumes) . | nindent 8 }}
+        {{ tpl (toYaml $extraVolumes) . | nindent 8 }}
         {{- end }}
